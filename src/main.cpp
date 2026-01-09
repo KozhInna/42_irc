@@ -1,7 +1,27 @@
-#include "iostream"
+#include "Server.hpp"
+#include <iostream>
+#include <string>
 
 int main(int argc, char **argv)
 {
-    (void)argc, (void)argv;
-    std::cout << "compiled" << std::endl;
+    if (argc != 3)
+    {
+        std::cerr << "Usage: ./ircserv <port> <password>" << std::endl;
+        return 1;
+    }
+
+    std::string password = argv[2];
+    int port = std::stoi(argv[1]);
+    std::cout << "pass - " << password << std::endl;
+    std::cout << "port - " << port << std::endl;
+
+    Server server(port, password);
+
+    try {
+        server.start();
+    } catch (const std::exception& e) {
+        std::cerr << "Error: " << e.what() << std::endl;
+        return 1;
+    }
+    return 0;
 }

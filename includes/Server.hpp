@@ -9,9 +9,9 @@
 class Server 
 {
     private:
-        int listenFd;
-        int port;
-        std::string password;
+        int listenFd_;
+        int port_;
+        std::string password_;
         std::unordered_map<int, std::shared_ptr<Client>> clients;
         std::unordered_map<std::string, std::shared_ptr<Channel>> channels;
 
