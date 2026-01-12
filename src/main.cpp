@@ -1,6 +1,7 @@
 #include "Server.hpp"
 #include <iostream>
 #include <string>
+#include <unistd.h>
 
 int main(int argc, char **argv)
 {
@@ -19,6 +20,11 @@ int main(int argc, char **argv)
 
     try {
         server.start();
+        std::cout << "Server listening on port " << port << std::endl;
+        
+        while (true) {
+            sleep(1);
+        }
     } catch (const std::exception& e) {
         std::cerr << "Error: " << e.what() << std::endl;
         return 1;
