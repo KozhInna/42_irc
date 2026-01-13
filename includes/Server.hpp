@@ -8,13 +8,6 @@
 
 class Server 
 {
-    private:
-        int listenFd_;
-        int port_;
-        std::string password_;
-        std::unordered_map<int, std::shared_ptr<Client>> clients;
-        std::unordered_map<std::string, std::shared_ptr<Channel>> channels;
-
     public:
         Server(int port, const std::string& password);
         ~Server();
@@ -32,5 +25,16 @@ class Server
          * @note - listen(): Marks socket as passive with backlog queue of 10
         */
         void start();
-        //void run();
+        void run();
+    
+    private:
+        //data
+        int listenFd_;
+        int port_;
+        std::string password_;
+        std::unordered_map<int, std::shared_ptr<Client>> clients;
+        std::unordered_map<std::string, std::shared_ptr<Channel>> channels;
+
+        //methods
+        void acceptNewClient();
 };

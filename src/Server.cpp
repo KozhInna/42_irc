@@ -7,6 +7,7 @@
 #include <cerrno>
 #include <cstring>
 #include <fcntl.h>
+ #include <arpa/inet.h>
 
 //constructor
 Server::Server(int port, const std::string& password) 
@@ -49,5 +50,37 @@ void Server::start()
     // Mark as listening socket (state: LISTENING, backlog: 10)
     if (listen(listenFd_, 10) == -1) {
         throw std::runtime_error(std::string("listen() failed: ") + strerror(errno));
+    }
+}
+
+void Server::run() {
+    struct sockaddr_in clientSock;
+    socklen_t clientSockLen = sizeof(clientSock);
+
+    while (true) {
+        int clientFd = accept(listenFd_, (struct sockaddr *)&clientSock, &clientSockLen);
+        if (clientFd == -1) {
+            std::cerr << "Error: accept() failed: " << strerror(errno) << std::endl;
+            continue;
+        }
+        std::cout << "one client arrived" << std::endl;
+        std::cout << "client IP addr " << inet_ntoa(clientSock.sin_addr) << std::endl;
+        std::cout << "client port " << ntohs(clientSock.sin_port) << std::endl;
+        
+        char buffer[512];
+        while (true) {
+            ssize_t bytesRead = recv(clientFd, buffer, sizeof(buffer), 0);
+            if (bytesRead > 0) {
+                std::cout.write(buffer, bytesRead);
+                std::cout << std::endl;
+            } else if (bytesRead == 0) {
+                std::cout << "client disconnected" << std::endl;
+                break;
+            } else if (bytesRead == -1) {
+                std::cerr << "Error: recv() failed: " << strerror(errno) << std::endl;
+                break;
+            }
+        }
+        close(clientFd);
     }
 }
