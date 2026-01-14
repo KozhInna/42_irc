@@ -1,4 +1,5 @@
 #include "Server.hpp"
+#include "Client.hpp"
 #include <iostream>
 #include <unistd.h>
 #include <sys/socket.h>
@@ -7,7 +8,7 @@
 #include <cerrno>
 #include <cstring>
 #include <fcntl.h>
- #include <arpa/inet.h>
+#include <arpa/inet.h>
 
 //constructor
 Server::Server(int port, const std::string& password) 
@@ -54,22 +55,12 @@ void Server::start()
 }
 
 void Server::run() {
-    struct sockaddr_in clientSock;
-    socklen_t clientSockLen = sizeof(clientSock);
-
     while (true) {
-        int clientFd = accept(listenFd_, (struct sockaddr *)&clientSock, &clientSockLen);
-        if (clientFd == -1) {
-            std::cerr << "Error: accept() failed: " << strerror(errno) << std::endl;
-            continue;
-        }
-        std::cout << "one client arrived" << std::endl;
-        std::cout << "client IP addr " << inet_ntoa(clientSock.sin_addr) << std::endl;
-        std::cout << "client port " << ntohs(clientSock.sin_port) << std::endl;
-        
+        std::shared_ptr<Client> client = acceptNewClient();
+        if (!client) { continue; }
         char buffer[512];
         while (true) {
-            ssize_t bytesRead = recv(clientFd, buffer, sizeof(buffer), 0);
+            ssize_t bytesRead = recv(client->getFd(), buffer, sizeof(buffer), 0);
             if (bytesRead > 0) {
                 std::cout.write(buffer, bytesRead);
                 std::cout << std::endl;
@@ -81,6 +72,21 @@ void Server::run() {
                 break;
             }
         }
-        close(clientFd);
+        close(client->getFd());
     }
+}
+
+std::shared_ptr<Client> Server::acceptNewClient() {
+    struct sockaddr_in clientSock;
+    socklen_t clientSockLen = sizeof(clientSock);
+
+    int clientFd = accept(listenFd_, (struct sockaddr *)&clientSock, &clientSockLen);
+    if (clientFd == -1) {
+        std::cerr << "Error: accept() failed: " << strerror(errno) << std::endl;
+        return nullptr;
+    }
+    std::shared_ptr<Client> client = std::make_shared<Client>(clientFd);
+    clients.insert({clientFd, client});
+
+    return client;
 }

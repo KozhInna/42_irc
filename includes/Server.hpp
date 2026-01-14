@@ -36,5 +36,5 @@ class Server
         std::unordered_map<std::string, std::shared_ptr<Channel>> channels;
 
         //methods
-        void acceptNewClient();
+        std::shared_ptr<Client> acceptNewClient();
 };
