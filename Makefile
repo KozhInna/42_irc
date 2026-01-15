@@ -6,7 +6,7 @@ CXXFLAGS := -Werror -Wextra -Wall -std=c++17 -I./includes
 
 SRCDIR := src
 # Add source files here as you create them
-SRCS := $(SRCDIR)/main.cpp 
+SRCS := $(SRCDIR)/main.cpp $(SRCDIR)/Server.cpp $(SRCDIR)/Client.cpp 
         # $(SRCDIR)/Channel.cpp
         # $(SRCDIR)/commands/auth.cpp 
 
