@@ -17,3 +17,7 @@ bool Client::getAuthPassed() const {
 bool Client::getRegistered() const {
     return registered_;
 }
+
+std::string& Client::getBuffer() {
+    return buffer_;
+}

@@ -58,21 +58,7 @@ void Server::run() {
     while (true) {
         std::shared_ptr<Client> client = acceptNewClient();
         if (!client) { continue; }
-        char buffer[512];
-        while (true) {
-            ssize_t bytesRead = recv(client->getFd(), buffer, sizeof(buffer), 0);
-            if (bytesRead > 0) {
-                std::cout.write(buffer, bytesRead);
-                std::cout << std::endl;
-            } else if (bytesRead == 0) {
-                std::cout << "client disconnected" << std::endl;
-                break;
-            } else if (bytesRead == -1) {
-                std::cerr << "Error: recv() failed: " << strerror(errno) << std::endl;
-                break;
-            }
-        }
-        close(client->getFd());
+        readMsgFromClient(client);
     }
 }
 
@@ -86,7 +72,35 @@ std::shared_ptr<Client> Server::acceptNewClient() {
         return nullptr;
     }
     std::shared_ptr<Client> client = std::make_shared<Client>(clientFd);
-    clients.insert({clientFd, client});
-
+    clients_.insert({clientFd, client});
     return client;
+}
+
+void Server::processMessage(std::shared_ptr<Client>& client, const std::string& msg) {
+    std::cout << "Client sent message: " << msg << std::endl;
+    (void)client;
+}
+
+void Server::readMsgFromClient(std::shared_ptr<Client> client) {
+    char tempBuf[512];
+    while (true) {
+        ssize_t bytesRead = recv(client->getFd(), tempBuf, sizeof(tempBuf), 0);
+        if (bytesRead > 0) {
+            client->getBuffer().append(tempBuf, bytesRead);
+            size_t pos;
+            while ((pos = client->getBuffer().find("\n")) != std::string::npos) {
+                std::string message = client->getBuffer().substr(0, pos);
+                processMessage(client, message);
+                client->getBuffer().erase(0, pos + 1);
+            }
+        } else if (bytesRead == 0) {
+            std::cout << "Client disconnected" << std::endl;
+            break;
+        } else if (bytesRead == -1) {
+            std::cerr << "Error: recv() failed: " << strerror(errno) << std::endl;
+            break;
+        }
+    }
+    clients_.erase(client->getFd());
+    close(client->getFd());
 }

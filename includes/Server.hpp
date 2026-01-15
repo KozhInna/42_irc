@@ -32,9 +32,11 @@ class Server
         int listenFd_;
         int port_;
         std::string password_;
-        std::unordered_map<int, std::shared_ptr<Client>> clients;
-        std::unordered_map<std::string, std::shared_ptr<Channel>> channels;
+        std::unordered_map<int, std::shared_ptr<Client>> clients_;
+        std::unordered_map<std::string, std::shared_ptr<Channel>> channels_;
 
         //methods
         std::shared_ptr<Client> acceptNewClient();
+        void readMsgFromClient(std::shared_ptr<Client> client);
+        void processMessage(std::shared_ptr<Client>& client, const std::string& msg);
 };

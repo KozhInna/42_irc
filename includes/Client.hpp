@@ -10,6 +10,7 @@ class Client {
         int getFd() const;
         bool getAuthPassed() const;
         bool getRegistered() const;
+        std::string& getBuffer();
 
     private:
         int fd_;
