@@ -103,8 +103,24 @@ std::shared_ptr<Client> Server::acceptNewClient() {
 
 void Server::processMessage(std::shared_ptr<Client>& client, const std::string& msg) {
 	std::cout << "Client sent message: " << msg << std::endl;
+	// parse the string (msg)
+	// returns the found cmd if any
+	ParsedCommand c = parseMessage(msg);
 	(void)client;
 }
+
+ParsedCommand Server::parseMessage(const std::string& msg) {
+	ParsedCommand c;
+	std::string s = msg;
+
+	float pos = s.find(' ', 0);
+	if (pos > 0) {
+		c.cmd = 
+	}
+
+	std::cout << "parser got message" << msg << std::endl;
+}
+
 
 void Server::readMsgFromClient(std::shared_ptr<Client> client) {
 	char tempBuf[512];
