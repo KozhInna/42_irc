@@ -10,6 +10,13 @@
 
 #define MAX_CLIENTS 128
 
+
+struct ParsedCommand
+{
+	std::string cmd;
+	std::vector<std::string> params;
+};
+
 class Server
 {
 	public:
@@ -48,11 +55,5 @@ class Server
 		void readMsgFromClient(std::shared_ptr<Client> client);
 		void processMessage(std::shared_ptr<Client>& client, const std::string& msg);
 		ParsedCommand parseMessage(const std::string& msg);
-};
-
-
-struct ParsedCommand
-{
-	std::string cmd;
-	std::vector<std::string> params;
+		void checkCommand(const std::string& cmd);
 };

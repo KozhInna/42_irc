@@ -1,6 +1,7 @@
 #include "Server.hpp"
 #include "Client.hpp"
 #include <iostream>
+#include <iterator>
 #include <unistd.h>
 #include <sys/socket.h>
 #include <sys/types.h>
@@ -106,21 +107,49 @@ void Server::processMessage(std::shared_ptr<Client>& client, const std::string& 
 	// parse the string (msg)
 	// returns the found cmd if any
 	ParsedCommand c = parseMessage(msg);
+	checkCommand(c.cmd);
 	(void)client;
 }
 
 ParsedCommand Server::parseMessage(const std::string& msg) {
 	ParsedCommand c;
 	std::string s = msg;
+	size_t pos;
 
-	float pos = s.find(' ', 0);
-	if (pos > 0) {
-		c.cmd = 
+	// this doesnt work that, if there is no space and the first command should be
+	// added to commands anyway
+	// the first word is always command so find it?
+	if ((pos = s.find(' ')) != std::string::npos) {
+		c.cmd = s.substr(0, pos);
+		s.erase(0, pos + 1);
 	}
 
-	std::cout << "parser got message" << msg << std::endl;
+	// just put everything else after that to a vector string
+	while ((pos = s.find(' ')) != std::string::npos) {
+		c.params.push_back(s.substr(0, pos));
+		s.erase(0, pos + 1);
+	}
+	
+	// if there is anything left add that to vector string as well
+	if (!s.empty())
+		c.params.push_back(s);
+
+	// std::cout << "command: " << c.cmd << " " << c.cmd.length() << std::endl;
+	// for (auto i : c.params)
+	// 	std::cout << "vector strings: " << i << " " << i.length() << std::endl;
+	return c;
 }
 
+void Server::checkCommand(const std::string& cmd) {
+	if (cmd == "USER")
+		std::cout << "User command found!" << std::endl;
+	else if (cmd == "NICK")
+		std::cout << "NICK command found!" << std::endl;
+	else if (cmd == "PASS")
+		std::cout << "PASS command found!" << std::endl;
+	else
+		std::cout << "No known command found. :(" << std::endl; 
+}
 
 void Server::readMsgFromClient(std::shared_ptr<Client> client) {
 	char tempBuf[512];
