@@ -116,6 +116,8 @@ ParsedCommand Server::parseMessage(const std::string& msg) {
 	std::string s = msg;
 	size_t pos;
 
+    // everything after ":" is considered one string
+
 	// this doesnt work that, if there is no space and the first command should be
 	// added to commands anyway
 	// the first word is always command so find it?
