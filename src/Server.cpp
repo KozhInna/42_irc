@@ -143,8 +143,12 @@ ParsedCommand Server::parseMessage(const std::string& msg) {
 	}
 	
 	// if there is anything left add that to vector string as well
-	if (!s.empty())
-		c.params.push_back(s);
+	if (!s.empty()) {
+		if (c.cmd.empty())
+			c.cmd = s;
+		else
+			c.params.push_back(s);
+	}
 	
 	// add temp if it is not empthy
 	if (!temp.empty())
