@@ -56,4 +56,5 @@ class Server
 		void processMessage(std::shared_ptr<Client>& client, const std::string& msg);
 		ParsedCommand parseMessage(const std::string& msg);
 		void checkCommand(const std::string& cmd);
+        void disconnectClient(int fd);
 };

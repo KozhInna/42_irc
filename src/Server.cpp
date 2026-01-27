@@ -24,11 +24,19 @@ Server::Server(int port, const std::string& password)
 //destructor
 Server::~Server()
 {
+    //std::cout << "Server destructor\n" << std::endl;
+
+    //close listenning socket
 	if (listenFd_ != -1) {
 		close(listenFd_);
 		listenFd_ = -1;
 	}
-	//std::cout << "Server destructor\n" << std::endl;
+
+    //close all open sockets
+    for (auto& it : clients_) {
+        close(it.first);
+    }
+    clients_.clear();
 }
 
 void Server::start()
@@ -80,8 +88,9 @@ void Server::run() {
 				if (it != clients_.end()){
 					readMsgFromClient(it->second);
 				}
-			}
-			if (pollFds[i].revents & (POLLHUP | POLLERR)) {
+			} else if (pollFds[i].revents & (POLLHUP | POLLERR)) {
+                std::cerr << "Client socket error (POLLHUP/POLLERR)" << std::endl;
+                disconnectClient(pollFds[i].fd);
 				//handle client disconnected - handleDisconnect(pollFds[i].fd);
 			}
 		}
@@ -126,13 +135,27 @@ void Server::readMsgFromClient(std::shared_ptr<Client> client) {
 			client->getBuffer().erase(0, pos + 1);
 		}
 	} else if (bytesRead == 0) {
-		std::cout << "Client disconnected" << std::endl;
+		std::cout << "Client disconnected gracefully" << std::endl;
+        disconnectClient(client->getFd());
 		//handle client disconnected
 	} else if (bytesRead == -1) {
 		std::cerr << "Error: recv() failed: " << strerror(errno) << std::endl;
+        disconnectClient(client->getFd());
 		//handle client disconnected
 	}
-
-	// clients_.erase(client->getFd());
-	// close(client->getFd());
 }
+
+void Server::disconnectClient(int fd) {
+	close(fd);
+    clients_.erase(fd);
+
+    for (int i = 1; i < nPollFds; i++) {
+        if (pollFds[i].fd == fd) {
+            if (i != nPollFds - 1) {
+                pollFds[i] = pollFds[nPollFds - 1]; 
+            }
+            nPollFds--;
+        }
+    }
+}
+    
