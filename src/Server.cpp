@@ -1,6 +1,7 @@
 #include "Server.hpp"
 #include "Client.hpp"
 #include <iostream>
+#include <iterator>
 #include <unistd.h>
 #include <sys/socket.h>
 #include <sys/types.h>
@@ -112,6 +113,13 @@ std::shared_ptr<Client> Server::acceptNewClient() {
 
 void Server::processMessage(std::shared_ptr<Client>& client, const std::string& msg) {
 	std::cout << "Client sent message: " << msg << std::endl;
+	// parse the string (msg)
+	// returns the found cmd if any
+	ParsedCommand c = parseMessage(msg);
+	checkCommand(c.cmd);
+//	std::cout << "command: " << c.cmd << " " << c.cmd.length() << std::endl;
+//	for (auto i : c.params)
+//		std::cout << "vector strings: " << i << " " << i.length() << std::endl;
 	(void)client;
 }
 

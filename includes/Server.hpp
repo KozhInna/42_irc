@@ -2,12 +2,20 @@
 
 #include "Client.hpp"
 #include "Channel.hpp"
+#include <vector>
 #include <string>
 #include <unordered_map>
 #include <memory> //for smart pointers
 #include <poll.h>
 
 #define MAX_CLIENTS 128
+
+
+struct ParsedCommand
+{
+	std::string cmd;
+	std::vector<std::string> params;
+};
 
 class Server
 {
@@ -46,5 +54,7 @@ class Server
 		std::shared_ptr<Client> acceptNewClient();
 		void readMsgFromClient(std::shared_ptr<Client> client);
 		void processMessage(std::shared_ptr<Client>& client, const std::string& msg);
+		ParsedCommand parseMessage(const std::string& msg);
+		void checkCommand(const std::string& cmd);
         void disconnectClient(int fd);
 };
