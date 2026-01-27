@@ -46,4 +46,5 @@ class Server
 		std::shared_ptr<Client> acceptNewClient();
 		void readMsgFromClient(std::shared_ptr<Client> client);
 		void processMessage(std::shared_ptr<Client>& client, const std::string& msg);
+        void disconnectClient(int fd);
 };
