@@ -108,63 +108,10 @@ void Server::processMessage(std::shared_ptr<Client>& client, const std::string& 
 	// returns the found cmd if any
 	ParsedCommand c = parseMessage(msg);
 	checkCommand(c.cmd);
-	std::cout << "command: " << c.cmd << " " << c.cmd.length() << std::endl;
-	for (auto i : c.params)
-		std::cout << "vector strings: " << i << " " << i.length() << std::endl;
+//	std::cout << "command: " << c.cmd << " " << c.cmd.length() << std::endl;
+//	for (auto i : c.params)
+//		std::cout << "vector strings: " << i << " " << i.length() << std::endl;
 	(void)client;
-}
-
-ParsedCommand Server::parseMessage(const std::string& msg) {
-	ParsedCommand c;
-	std::string s = msg;
-	std::string temp;
-	size_t pos;
-	
-	// this doesnt work that, if there is no space and the first command should be
-	// added to commands anyway
-	// the first word is always command so find it?
-	// command
-	if ((pos = s.find(' ')) != std::string::npos) {
-		c.cmd = s.substr(0, pos);
-		s.erase(0, pos + 1);
-	}
-
-	// first check if there is a ":" and save that to temp
-	if ((pos = s.find(':')) != std::string::npos) {
-		temp = s.substr(pos, s.substr(pos, s.length()).length());
-		s.erase(pos, temp.length());
-		temp.erase(0, 1); // removes the ":"
-	}
-	
-	// then split the rest by spaces
-	while ((pos = s.find(' ')) != std::string::npos) {
-		c.params.push_back(s.substr(0, pos));
-		s.erase(0, pos + 1);
-	}
-	
-	// if there is anything left add that to vector string as well
-	if (!s.empty()) {
-		if (c.cmd.empty())
-			c.cmd = s;
-		else
-			c.params.push_back(s);
-	}
-	
-	// add temp if it is not empthy
-	if (!temp.empty())
-		c.params.push_back(temp);
-	return c;
-}
-
-void Server::checkCommand(const std::string& cmd) {
-	if (cmd == "USER")
-		std::cout << "User command found!" << std::endl;
-	else if (cmd == "NICK")
-		std::cout << "NICK command found!" << std::endl;
-	else if (cmd == "PASS")
-		std::cout << "PASS command found!" << std::endl;
-	else
-		std::cout << "No known command found. :(" << std::endl; 
 }
 
 void Server::readMsgFromClient(std::shared_ptr<Client> client) {
