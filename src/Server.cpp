@@ -10,33 +10,36 @@
 #include <cstring>
 #include <fcntl.h>
 #include <arpa/inet.h>
+#include <iomanip>
 
 //constructor
 Server::Server(int port, const std::string& password)
 	:   listenFd_(-1),
 		port_(port),
 		password_(password),
+		serverName_("irc.42.com"),
 		nPollFds(0)
 {
 	//std::cout << "Server constructor\n" << std::endl;
+	initReplyMessages();
 }
 
 //destructor
 Server::~Server()
 {
-    //std::cout << "Server destructor\n" << std::endl;
+	//std::cout << "Server destructor\n" << std::endl;
 
-    //close listenning socket
+	//close listenning socket
 	if (listenFd_ != -1) {
 		close(listenFd_);
 		listenFd_ = -1;
 	}
 
-    //close all open sockets
-    for (auto& it : clients_) {
-        close(it.first);
-    }
-    clients_.clear();
+	//close all open sockets
+	for (auto& it : clients_) {
+		close(it.first);
+	}
+	clients_.clear();
 }
 
 void Server::start()
@@ -89,8 +92,8 @@ void Server::run() {
 					readMsgFromClient(it->second);
 				}
 			} else if (pollFds[i].revents & (POLLHUP | POLLERR)) {
-                std::cerr << "Client socket error (POLLHUP/POLLERR)" << std::endl;
-                disconnectClient(pollFds[i].fd);
+				std::cerr << "Client socket error (POLLHUP/POLLERR)" << std::endl;
+				disconnectClient(pollFds[i].fd);
 				//handle client disconnected - handleDisconnect(pollFds[i].fd);
 			}
 		}
@@ -136,26 +139,64 @@ void Server::readMsgFromClient(std::shared_ptr<Client> client) {
 		}
 	} else if (bytesRead == 0) {
 		std::cout << "Client disconnected gracefully" << std::endl;
-        disconnectClient(client->getFd());
+		disconnectClient(client->getFd());
 		//handle client disconnected
 	} else if (bytesRead == -1) {
 		std::cerr << "Error: recv() failed: " << strerror(errno) << std::endl;
-        disconnectClient(client->getFd());
+		disconnectClient(client->getFd());
 		//handle client disconnected
 	}
 }
 
 void Server::disconnectClient(int fd) {
 	close(fd);
-    clients_.erase(fd);
+	clients_.erase(fd);
 
-    for (int i = 1; i < nPollFds; i++) {
-        if (pollFds[i].fd == fd) {
-            if (i != nPollFds - 1) {
-                pollFds[i] = pollFds[nPollFds - 1]; 
-            }
-            nPollFds--;
-        }
-    }
+	for (int i = 1; i < nPollFds; i++) {
+		if (pollFds[i].fd == fd) {
+			if (i != nPollFds - 1) {
+				pollFds[i] = pollFds[nPollFds - 1];
+			}
+			nPollFds--;
+		}
+	}
 }
-    
+
+void Server::initReplyMessages() {
+	replyMessages_[RPL_WELCOME] = ":Welcome to the Internet Relay Network";
+
+	replyMessages_[ERR_UNKNOWNCOMMAND] = ":Unknown command";
+	replyMessages_[ERR_NONICKNAMEGIVEN] = ":No nickname given";
+	replyMessages_[ERR_ERRONEUSNICKNAME] = ":Erroneous nickname";
+	replyMessages_[ERR_NICKNAMEINUSE] = ":Nickname is already in use";
+	replyMessages_[ERR_NEEDMOREPARAMS] = ":Not enough parameters";
+	replyMessages_[ERR_ALREADYREGISTRED] = ":You may not reregister";
+	replyMessages_[ERR_PASSWDMISMATCH] = ":Password incorrect";
+}
+
+std::string Server::formatReply(int code, const std::string& target, const std::string& param) {
+
+	std::stringstream ss;
+
+	// :<server> <code> <target> [param] <message>\r\n
+	ss << ":" << serverName_ << " ";
+	ss << std::setw(3) << std::setfill('0') << code << " ";
+	ss << (target.empty() ? "*" : target) << " ";
+
+	if (!param.empty()) {
+		ss << param << " ";
+	}
+
+	ss << replyMessages_[code] << "\r\n";
+	return ss.str();
+}
+
+void Server::sendReply(std::shared_ptr<Client>& client, int code,const std::string& param) {
+	std::string target = client->getNickName();
+	if (target.empty()) {
+		target = "*";
+	}
+
+	std::string reply = formatReply(code, target, param);
+	send(client->getFd(), reply.c_str(), reply.length(), 0);
+}
