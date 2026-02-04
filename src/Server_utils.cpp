@@ -1,14 +1,5 @@
 #include "Server.hpp"
-#include "Client.hpp"
 #include <iostream>
-#include <iterator>
-#include <unistd.h>
-#include <sys/socket.h>
-#include <sys/types.h>
-#include <netinet/in.h>
-#include <cerrno>
-#include <cstring>
-#include <fcntl.h>
 
 // TODO: check what includes are actually needed
 
