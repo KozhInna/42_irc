@@ -54,14 +54,8 @@ ParsedCommand Server::parseMessage(const std::string& msg) {
 }
 
 void Server::checkCommand(std::shared_ptr<Client>& client, const ParsedCommand& c) {
-	if (c.cmd == "USER") {
-		// :irc.example.com 461 alice USER :Not enough parameters
-		if (c.params.size() != 4) {
-			std::cout << "Error 461 :Not enough parameters" << std::endl; // this needs to be done
-			return;
-		}
-		std::cout << "User command found!" << std::endl;
-	}
+	if (c.cmd == "USER")
+		cmdUser(client, c.params[0], c.params[3], c.params.size());
 	else if (c.cmd == "NICK")
 		std::cout << "NICK command found!" << std::endl;
 	else if (c.cmd == "PASS") {

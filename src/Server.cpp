@@ -172,6 +172,7 @@ void Server::initReplyMessages() {
 	replyMessages_[ERR_NEEDMOREPARAMS] = ":Not enough parameters";
 	replyMessages_[ERR_ALREADYREGISTRED] = ":You may not reregister";
 	replyMessages_[ERR_PASSWDMISMATCH] = ":Password incorrect";
+	replyMessages_[ERR_NOTREGISTERED] = ":You have not registered";
 }
 
 std::string Server::formatReply(int code, const std::string& target, const std::string& param) {
@@ -191,7 +192,7 @@ std::string Server::formatReply(int code, const std::string& target, const std::
 	return ss.str();
 }
 
-void Server::sendReply(std::shared_ptr<Client>& client, int code,const std::string& param) {
+void Server::sendReply(std::shared_ptr<Client>& client, int code, const std::string& param) {
 	std::string target = client->getNickName();
 	if (target.empty()) {
 		target = "*";

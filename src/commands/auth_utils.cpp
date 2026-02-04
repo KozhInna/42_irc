@@ -14,16 +14,24 @@
 
 // TODO: check what includes are actually needed
 
-int Server::cmdUser(std::shared_ptr<Client>& client, std::string &username, std::string &realname) {
-    if (client->getRegistered() == true)
-        return 462; // 461 ERR_ALREADYREGISTRED
-
-    if (client->getNickName().empty() || !client->getAuthPassed()) {
-        return 451; // 451 ERR_NOTREGISTERED
+void Server::cmdUser(std::shared_ptr<Client>& client, const std::string& username, const std::string& realname, const size_t param_size) {
+    if (client->getRegistered() == true) {
+        sendReply(client, ERR_ALREADYREGISTRED, "USER");
+        return;
     }
 
-    client->setUsername(username);
+    if (client->getNickName().empty() || !client->getAuthPassed()) {
+        sendReply(client, ERR_NOTREGISTERED, "USER");
+        return;
+    }
+
+    if (param_size != 4) {
+        sendReply(client, ERR_NEEDMOREPARAMS, "USER");
+        return;
+    }
+
+    client->setUserName(username);
     client->setRealName(realname);
     client->setRegistered(true);
-    return 0; // success
+    return;
 }

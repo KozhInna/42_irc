@@ -26,6 +26,7 @@ enum NumericReply {
     ERR_NONICKNAMEGIVEN = 431,
     ERR_ERRONEUSNICKNAME = 432,
     ERR_NICKNAMEINUSE = 433,
+	ERR_NOTREGISTERED = 451,
     ERR_NEEDMOREPARAMS = 461,
     ERR_ALREADYREGISTRED = 462,
     ERR_PASSWDMISMATCH = 464,
@@ -95,5 +96,5 @@ class Server
 		void initReplyMessages();
 		std::string formatReply(int code, const std::string& target, const std::string& param = "");
 		void sendReply(std::shared_ptr<Client>& client, int code, const std::string& param = "");
-		int cmdUser(std::shared_ptr<Client>& client,std::string& username, std::string& realname);
+		void cmdUser(std::shared_ptr<Client>& client, const std::string& username, const std::string& realname, const size_t param_size);
 };

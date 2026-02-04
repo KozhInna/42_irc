@@ -17,9 +17,9 @@ class Client {
 		const std::string& getUserName() { return userName_; }
 		const std::string& getRealName() { return realName_; }
 
-		void setNickName(std::string& nick) { nickName_ = nick; }
-		void setUserName(std::string& user) { userName_ = user; }
-		void setRealName(std::string& real) { realName_ = real; }
+		void setNickName(const std::string& nick) { nickName_ = nick; }
+		void setUserName(const std::string& user) { userName_ = user; }
+		void setRealName(const std::string& real) { realName_ = real; }
 
         std::string& getBuffer();
 
