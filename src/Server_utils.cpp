@@ -9,9 +9,8 @@
 #include <cerrno>
 #include <cstring>
 #include <fcntl.h>
-#include <arpa/inet.h>
 
-
+// TODO: check what includes are actually needed
 
 ParsedCommand Server::parseMessage(const std::string& msg) {
 	ParsedCommand c;
@@ -19,17 +18,19 @@ ParsedCommand Server::parseMessage(const std::string& msg) {
 	std::string temp;
 	size_t pos;
 
-	// command
-	if ((pos = s.find(' ')) != std::string::npos) {
-		c.cmd = s.substr(0, pos);
-		s.erase(0, pos + 1);
-	}
-
 	// first check if there is a ":" and save that to temp
 	if ((pos = s.find(':')) != std::string::npos) {
 		temp = s.substr(pos, s.substr(pos, s.length()).length());
 		s.erase(pos, temp.length());
 		temp.erase(0, 1); // removes the ":"
+	}
+
+	// command
+	if ((pos = s.find(' ')) != std::string::npos) {
+		c.cmd = s.substr(0, pos);
+		for (size_t i = 0; i < c.cmd.length(); ++i) // change cmd to uppercase
+			c.cmd[i] = toupper(c.cmd[i]);
+		s.erase(0, pos + 1);
 	}
 	
 	// then split the rest by spaces
@@ -52,12 +53,18 @@ ParsedCommand Server::parseMessage(const std::string& msg) {
 	return c;
 }
 
-void Server::checkCommand(const std::string& cmd) {
-	if (cmd == "USER")
+void Server::checkCommand(std::shared_ptr<Client>& client, const ParsedCommand& c) {
+	if (c.cmd == "USER") {
+		// :irc.example.com 461 alice USER :Not enough parameters
+		if (c.params.size() != 4) {
+			std::cout << "Error 461 :Not enough parameters" << std::endl; // this needs to be done
+			return;
+		}
 		std::cout << "User command found!" << std::endl;
-	else if (cmd == "NICK")
+	}
+	else if (c.cmd == "NICK")
 		std::cout << "NICK command found!" << std::endl;
-	else if (cmd == "PASS")
+	else if (c.cmd == "PASS")
 		std::cout << "PASS command found!" << std::endl;
 	else
 		std::cout << "No known command found. :(" << std::endl; 

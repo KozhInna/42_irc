@@ -23,6 +23,7 @@ class Client {
 
         std::string& getBuffer();
 
+
     private:
         int fd_;
         std::string nickName_;

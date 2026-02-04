@@ -116,7 +116,7 @@ void Server::processMessage(std::shared_ptr<Client>& client, const std::string& 
 	// parse the string (msg)
 	// returns the found cmd if any
 	ParsedCommand c = parseMessage(msg);
-	checkCommand(c.cmd);
+	checkCommand(client, c);
 //	std::cout << "command: " << c.cmd << " " << c.cmd.length() << std::endl;
 //	for (auto i : c.params)
 //		std::cout << "vector strings: " << i << " " << i.length() << std::endl;
