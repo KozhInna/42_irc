@@ -31,13 +31,13 @@ ParsedCommand Server::parseMessage(const std::string& msg) {
 		s.erase(pos, temp.length());
 		temp.erase(0, 1); // removes the ":"
 	}
-	
+
 	// then split the rest by spaces
 	while ((pos = s.find(' ')) != std::string::npos) {
 		c.params.push_back(s.substr(0, pos));
 		s.erase(0, pos + 1);
 	}
-	
+
 	// if there is anything left add that to vector string as well
 	if (!s.empty()) {
 		if (c.cmd.empty())
@@ -45,20 +45,22 @@ ParsedCommand Server::parseMessage(const std::string& msg) {
 		else
 			c.params.push_back(s);
 	}
-	
+
 	// add temp if it is not empthy
 	if (!temp.empty())
 		c.params.push_back(temp);
 	return c;
 }
 
-void Server::checkCommand(const std::string& cmd) {
-	if (cmd == "USER")
+void Server::checkCommand(std::shared_ptr<Client>& client, const ParsedCommand& c) {
+	if (c.cmd == "USER")
 		std::cout << "User command found!" << std::endl;
-	else if (cmd == "NICK")
+	else if (c.cmd == "NICK")
 		std::cout << "NICK command found!" << std::endl;
-	else if (cmd == "PASS")
+	else if (c.cmd == "PASS") {
+		sendReply(client, ERR_UNKNOWNCOMMAND, c.cmd);
 		std::cout << "PASS command found!" << std::endl;
+	}
 	else
-		std::cout << "No known command found. :(" << std::endl; 
+		std::cout << "No known command found. :(" << std::endl;
 }

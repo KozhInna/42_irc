@@ -28,7 +28,7 @@ class Client {
         std::string nickName_;
         std::string userName_;
         std::string realName_;
-        bool authPassed_;
-        bool registered_;
+        bool authPassed_; // PASS cmd sent successfully
+        bool registered_; // PASS + NICK + USER sent
         std::string buffer_;
 };
