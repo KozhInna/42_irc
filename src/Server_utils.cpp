@@ -59,9 +59,11 @@ void Server::checkCommand(std::shared_ptr<Client>& client, const ParsedCommand& 
 	else if (c.cmd == "NICK")
 		std::cout << "NICK command found!" << std::endl;
 	else if (c.cmd == "PASS") {
-		sendReply(client, ERR_UNKNOWNCOMMAND, c.cmd);
-		std::cout << "PASS command found!" << std::endl;
+        handlePass(client, c);
 	}
 	else
-		std::cout << "No known command found. :(" << std::endl;
+		std::cout << "Unknown command found. :(" << std::endl;
 }
+
+/* void hadlePass();
+void handleNick(); */
