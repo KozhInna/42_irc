@@ -9,7 +9,7 @@ void Server::cmdUser(std::shared_ptr<Client>& client, const std::string& usernam
         return;
     }
 
-    if (client->getNickName().empty() || !client->getAuthPassed()) {
+    if (client->getNickName().empty() || !client->getPassAccepted()) {
         sendReply(client, ERR_NOTREGISTERED, "USER");
         return;
     }
