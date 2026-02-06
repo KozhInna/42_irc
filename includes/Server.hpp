@@ -91,6 +91,7 @@ class Server
 		void checkCommand(std::shared_ptr<Client>& client, const ParsedCommand& c);
 		void handlePass(std::shared_ptr<Client>& client, const ParsedCommand& c);
 		void handleNick(std::shared_ptr<Client>& client, const ParsedCommand& c);
+        bool isValidNickname(const std::string& nick);
 
 		// methods - Reply/Error handling
 		void initReplyMessages();

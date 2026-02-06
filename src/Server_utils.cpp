@@ -57,7 +57,7 @@ void Server::checkCommand(std::shared_ptr<Client>& client, const ParsedCommand& 
 	if (c.cmd == "USER")
 		cmdUser(client, c.params[0], c.params[3], c.params.size());
 	else if (c.cmd == "NICK")
-		std::cout << "NICK command found!" << std::endl;
+        handleNick(client, c);
 	else if (c.cmd == "PASS") {
         handlePass(client, c);
 	}
