@@ -5,7 +5,7 @@
 
 void Server::cmdUser(std::shared_ptr<Client>& client, const std::string& username, const std::string& realname, const size_t param_size) {
     if (client->getRegistered()) {
-        sendReply(client, ERR_ALREADYREGISTRED, "USER");
+        sendReply(client, ERR_ALREADYREGISTERED, "USER");
         return;
     }
 
