@@ -48,7 +48,7 @@ void Server::checkCommand(std::shared_ptr<Client>& client, const ParsedCommand& 
     if (c.cmd == "USER") cmdUser(client, c.params[0], c.params[3], c.params.size());
     else if (c.cmd == "NICK") handleNick(client, c);
     else if (c.cmd == "PASS") handlePass(client, c);
-    //else if (c.cmd == "QUIT") handleQuit(client, c);
+    else if (c.cmd == "QUIT") handleQuit(client, c);
 
     // Commands that require registration
     else if (requiresRegistration(c.cmd)) {
