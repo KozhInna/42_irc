@@ -1,6 +1,7 @@
 #include "Server.hpp"
 #include "Client.hpp"
 #include <iostream>
+ #include <sys/socket.h>
 
 void Server::handlePass(std::shared_ptr<Client>& client, const ParsedCommand& c) {
     if (c.params.empty()) {
@@ -90,4 +91,24 @@ void Server::handlePass(std::shared_ptr<Client>& client, const ParsedCommand& c)
         }
     }
     return true;
+ }
+
+ void Server::handleQuit(std::shared_ptr<Client>& client, const ParsedCommand& c) {
+    std::string quitMsg = "Client quit";
+
+    if (!c.params.empty()) {
+        quitMsg = c.params[0];
+    }
+
+    // 2. REQUIRED: Notify other users in channels
+    // (I'll add this when you have channels)
+    // notifyQuit(client, quitMsg);
+    //e.g. :alice!user@host QUIT :Client exited
+
+    // 3. Send ERROR to quitting client
+    std::string errorMsg = "ERROR :Closing Link: " + serverName_ + " (" + quitMsg + ")\r\n";
+    send(client->getFd(), errorMsg.c_str(), errorMsg.length(), 0);
+
+    //4. Close connection
+    disconnectClient(client->getFd());
  }
