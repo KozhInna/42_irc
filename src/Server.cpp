@@ -11,6 +11,7 @@
 #include <fcntl.h>
 #include <arpa/inet.h>
 #include <iomanip>
+#include <sstream>  
 
 //constructor
 Server::Server(int port, const std::string& password)
@@ -170,7 +171,7 @@ void Server::initReplyMessages() {
 	replyMessages_[ERR_ERRONEUSNICKNAME] = ":Erroneous nickname";
 	replyMessages_[ERR_NICKNAMEINUSE] = ":Nickname is already in use";
 	replyMessages_[ERR_NEEDMOREPARAMS] = ":Not enough parameters";
-	replyMessages_[ERR_ALREADYREGISTRED] = ":You may not reregister";
+	replyMessages_[ERR_ALREADYREGISTERED] = ":You may not reregister";
 	replyMessages_[ERR_PASSWDMISMATCH] = ":Password incorrect";
 	replyMessages_[ERR_NOTREGISTERED] = ":You have not registered";
 }

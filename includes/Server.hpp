@@ -27,8 +27,8 @@ enum NumericReply {
     ERR_ERRONEUSNICKNAME = 432,
     ERR_NICKNAMEINUSE = 433,
 	ERR_NOTREGISTERED = 451,
-    ERR_NEEDMOREPARAMS = 461,
-    ERR_ALREADYREGISTRED = 462,
+    ERR_NEEDMOREPARAMS = 461, //Include command name
+    ERR_ALREADYREGISTERED = 462,
     ERR_PASSWDMISMATCH = 464,
     ERR_CHANNELISFULL = 471,
     ERR_INVITEONLYCHAN = 473,
@@ -89,8 +89,9 @@ class Server
 
 		//methods - commands handling
 		void checkCommand(std::shared_ptr<Client>& client, const ParsedCommand& c);
-		void hadlePass();
-		void handleNick();
+		void handlePass(std::shared_ptr<Client>& client, const ParsedCommand& c);
+		void handleNick(std::shared_ptr<Client>& client, const ParsedCommand& c);
+        bool isValidNickname(const std::string& nick);
 
 		// methods - Reply/Error handling
 		void initReplyMessages();

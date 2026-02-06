@@ -16,11 +16,11 @@
 
 void Server::cmdUser(std::shared_ptr<Client>& client, const std::string& username, const std::string& realname, const size_t param_size) {
     if (client->getRegistered() == true) {
-        sendReply(client, ERR_ALREADYREGISTRED, "USER");
+        sendReply(client, ERR_ALREADYREGISTERED, "USER");
         return;
     }
 
-    if (client->getNickName().empty() || !client->getAuthPassed()) {
+    if (client->getNickName().empty() || !client->getPassAccepted()) {
         sendReply(client, ERR_NOTREGISTERED, "USER");
         return;
     }

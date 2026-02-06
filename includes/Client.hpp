@@ -8,9 +8,10 @@ class Client {
         ~Client();
 
         int getFd() const;
-        bool getAuthPassed() const;
+        bool getPassAccepted() const;
         bool getRegistered() const;
 		void setRegistered(bool v) { registered_ = v; }
+        void setPassAccepted(bool v) { passAccepted_ = v; }
 
 		// TODO; move the functions inside the client folders
 		const std::string& getNickName() { return nickName_; }
@@ -29,7 +30,7 @@ class Client {
         std::string nickName_;
         std::string userName_;
         std::string realName_;
-        bool authPassed_; // PASS cmd sent successfully
+        bool passAccepted_; // PASS cmd sent successfully
         bool registered_; // PASS + NICK + USER sent
         std::string buffer_;
 };
