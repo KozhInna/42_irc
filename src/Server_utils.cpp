@@ -45,16 +45,32 @@ ParsedCommand Server::parseMessage(const std::string& msg) {
 }
 
 void Server::checkCommand(std::shared_ptr<Client>& client, const ParsedCommand& c) {
-	if (c.cmd == "USER")
-		cmdUser(client, c.params[0], c.params[3], c.params.size());
-	else if (c.cmd == "NICK")
-        handleNick(client, c);
-	else if (c.cmd == "PASS") {
-        handlePass(client, c);
-	}
-	else
-		std::cout << "Unknown command found. :(" << std::endl;
+    if (c.cmd == "USER") cmdUser(client, c.params[0], c.params[3], c.params.size());
+    else if (c.cmd == "NICK") handleNick(client, c);
+    else if (c.cmd == "PASS") handlePass(client, c);
+    //else if (c.cmd == "QUIT") handleQuit(client, c);
+
+    // Commands that require registration
+    else if (requiresRegistration(c.cmd)) {
+        if (!client->getRegistered()) {
+            sendReply(client, ERR_NOTREGISTERED, ""); 
+            return;
+        }
+        // Route to appropriate handler
+        //if (c.cmd == "JOIN") handleJoin(client, c);
+        //else if (c.cmd == "PART") handlePart(client, c);
+        //else if (c.cmd == "PRIVMSG") handlePrivmsg(client, c);
+        //else if (c.cmd == "KICK") handleKick(client, c);
+        //else if (c.cmd == "INVITE") handleInvite(client, c);
+        //else if (c.cmd == "TOPIC") handleTopic(client, c);
+        //else if (c.cmd == "MODE") handleMode(client, c);
+    } else {
+        sendReply(client, ERR_UNKNOWNCOMMAND, c.cmd); 
+    }
 }
 
-/* void hadlePass();
-void handleNick(); */
+bool Server::requiresRegistration(const std::string& cmd) {
+    return (cmd == "JOIN" || cmd == "PART" || cmd == "PRIVMSG" || 
+            cmd == "KICK" || cmd == "INVITE" || cmd == "TOPIC" || 
+            cmd == "MODE");
+}
