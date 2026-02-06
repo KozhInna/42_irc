@@ -1,8 +1,10 @@
 #include "Channel.hpp"
-#include <string>
 
 //constructor
-Channel::Channel(const std::string& channelName) : channelName_(channelName) {}
+Channel::Channel(const std::string& channelName, Client& client){
+	channelName_ = channelName;
+
+}
 
 //destructor
 Channel::~Channel() {}
