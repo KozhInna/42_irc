@@ -2,9 +2,10 @@
 #include "Server.hpp"
 #include <iostream>
 
+
 // so first we handle just joining a one channel, optionally with password
 // also we handle join 0
-ParsedJoin Server::handleJoin(std::shared_ptr<Client>& client, const ParsedCommand& c) {
+ParsedJoin Server::parseJoin(std::shared_ptr<Client>& client, const ParsedCommand& c) {
 	ParsedJoin p {.channel = "", .password = ""};
 
 	// if no parameters then cancel
@@ -25,4 +26,9 @@ ParsedJoin Server::handleJoin(std::shared_ptr<Client>& client, const ParsedComma
 	if (c.params.size() >= 2)
 		p.password = c.params[1];
 	return p;
+}
+
+void Server::handleJoin(std::shared_ptr<Client>& client, const ParsedCommand& c) {
+	ParsedJoin p;
+	p = parseJoin(client, c);
 }
