@@ -1,7 +1,11 @@
 #include "Client.hpp"
 
 //constructor
-Client::Client(int fd) : fd_(fd), passAccepted_(false), registered_(false) {}
+Client::Client(int fd, const std::string& host)
+	:	fd_(fd),
+		hostname_(host),
+		passAccepted_(false),
+		registered_(false) {}
 
 //destructor
 Client::~Client() {}

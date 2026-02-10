@@ -11,7 +11,7 @@
 #include <fcntl.h>
 #include <arpa/inet.h>
 #include <iomanip>
-#include <sstream>  
+#include <sstream>
 
 //constructor
 Server::Server(int port, const std::string& password)
@@ -110,7 +110,11 @@ std::shared_ptr<Client> Server::acceptNewClient() {
 		std::cerr << "Error: accept() failed: " << strerror(errno) << std::endl;
 		return nullptr;
 	}
-	std::shared_ptr<Client> client = std::make_shared<Client>(clientFd);
+
+	char hostname[INET_ADDRSTRLEN];
+	inet_ntop(AF_INET, &(clientSock.sin_addr), hostname, INET_ADDRSTRLEN);
+
+	std::shared_ptr<Client> client = std::make_shared<Client>(clientFd, hostname);
 	clients_.insert({clientFd, client});
 	return client;
 }
