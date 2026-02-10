@@ -23,6 +23,15 @@ ParsedCommand Server::parseMessage(const std::string& msg) {
 			c.cmd[i] = toupper(c.cmd[i]);
 		s.erase(0, pos + 1);
 	}
+	else
+	{ // if there is no spaces, it is cmd
+		c.cmd = s;
+		for (size_t i = 0; i < c.cmd.length(); ++i) // change cmd to uppercase
+			c.cmd[i] = toupper(c.cmd[i]);
+		if (!temp.empty())
+			c.params.push_back(temp);
+		return c;
+	}
 	
 	// then split the rest by spaces
 	while ((pos = s.find(' ')) != std::string::npos) {
@@ -45,7 +54,7 @@ ParsedCommand Server::parseMessage(const std::string& msg) {
 }
 
 void Server::checkCommand(std::shared_ptr<Client>& client, const ParsedCommand& c) {
-    if (c.cmd == "USER") cmdUser(client, c.params[0], c.params[3], c.params.size());
+    if (c.cmd == "USER") handleCommand(client, c.params[0], c.params[3], c.params.size());
     else if (c.cmd == "NICK") handleNick(client, c);
     else if (c.cmd == "PASS") handlePass(client, c);
     else if (c.cmd == "QUIT") handleQuit(client, c);
@@ -57,7 +66,7 @@ void Server::checkCommand(std::shared_ptr<Client>& client, const ParsedCommand& 
             return;
         }
         // Route to appropriate handler
-        //if (c.cmd == "JOIN") handleJoin(client, c);
+        if (c.cmd == "JOIN") handleJoin(client, c);
         //else if (c.cmd == "PART") handlePart(client, c);
         //else if (c.cmd == "PRIVMSG") handlePrivmsg(client, c);
         //else if (c.cmd == "KICK") handleKick(client, c);

@@ -41,6 +41,12 @@ struct ParsedCommand
 	std::vector<std::string> params;
 };
 
+struct ParsedJoin
+{
+	std::string channel;
+	std::string password;
+};
+
 class Server
 {
 	public:
@@ -92,6 +98,7 @@ class Server
 		void handlePass(std::shared_ptr<Client>& client, const ParsedCommand& c);
 		void handleNick(std::shared_ptr<Client>& client, const ParsedCommand& c);
         void handleQuit(std::shared_ptr<Client>& client, const ParsedCommand& c);
+		ParsedJoin handleJoin(std::shared_ptr<Client>& client, const ParsedCommand& c);
         bool isValidNickname(const std::string& nick);
         bool requiresRegistration(const std::string& cmd);
 
@@ -99,5 +106,5 @@ class Server
 		void initReplyMessages();
 		std::string formatReply(int code, const std::string& target, const std::string& param = "");
 		void sendReply(std::shared_ptr<Client>& client, int code, const std::string& param = "");
-		void cmdUser(std::shared_ptr<Client>& client, const std::string& username, const std::string& realname, const size_t param_size);
+		void handleCommand(std::shared_ptr<Client>& client, const std::string& username, const std::string& realname, const size_t param_size);
 };
