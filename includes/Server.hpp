@@ -9,6 +9,8 @@
 #include <poll.h>
 
 #define MAX_CLIENTS 128
+#define NETWORK_NAME   "42Network"
+#define SERVER_VERSION "1.0"
 
 // numeric reply
 enum NumericReply {
@@ -73,13 +75,17 @@ class Server
 		int listenFd_;
 		int port_;
 		std::string password_;
-		std::string serverName_; //"irc.server.com"
+		const std::string serverName_; //"irc.server.com"
+        const std::string creationDate_;
 		std::unordered_map<int, std::shared_ptr<Client>> clients_;
 		std::unordered_map<std::string, std::shared_ptr<Channel>> channels_;
 
 		//related to poll()
 		struct pollfd pollFds[MAX_CLIENTS];
 		int nPollFds;
+
+        //server setting
+        const std::string getCreationDate() const;
 
 		//reply messages map
 		std::unordered_map<int, std::string> replyMessages_;
