@@ -187,11 +187,13 @@ std::string Server::formatReply(int code, const std::string& target, const std::
 	ss << std::setw(3) << std::setfill('0') << code << " ";
 	ss << (target.empty() ? "*" : target) << " ";
 
-	if (!extra.empty()) {
-		ss << extra << " ";
-	}
-
     bool hasStaticMsg = replyMessages_.find(code) != replyMessages_.end();
+    if (!extra.empty()) {
+        ss << extra;
+        if (hasStaticMsg)
+            ss << " ";  // ← only add space if static message follows!
+    }
+
 	ss << (hasStaticMsg ? replyMessages_[code] : "") << "\r\n";
 	return ss.str();
 }

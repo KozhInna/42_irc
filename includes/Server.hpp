@@ -116,4 +116,6 @@ class Server
 		void initReplyMessages();
 		std::string formatReply(int code, const std::string& target, const std::string& param = "");
 		void sendReply(std::shared_ptr<Client>& client, int code, const std::string& param = "");
+        void handleCap(std::shared_ptr<Client>& client, const ParsedCommand& c);
+        void handlePing(std::shared_ptr<Client>& client, const ParsedCommand& c);
 };
