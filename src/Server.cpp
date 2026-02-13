@@ -167,8 +167,6 @@ void Server::disconnectClient(int fd) {
 }
 
 void Server::initReplyMessages() {
-	replyMessages_[RPL_WELCOME] = ":Welcome to the Internet Relay Network";
-
 	replyMessages_[ERR_UNKNOWNCOMMAND] = ":Unknown command";
 	replyMessages_[ERR_NONICKNAMEGIVEN] = ":No nickname given";
 	replyMessages_[ERR_ERRONEUSNICKNAME] = ":Erroneous nickname";
@@ -177,9 +175,10 @@ void Server::initReplyMessages() {
 	replyMessages_[ERR_ALREADYREGISTERED] = ":You may not reregister";
 	replyMessages_[ERR_PASSWDMISMATCH] = ":Password incorrect";
 	replyMessages_[ERR_NOTREGISTERED] = ":You have not registered";
+    replyMessages_[ERR_NOMOTD] = ":MOTD File is missing";
 }
 
-std::string Server::formatReply(int code, const std::string& target, const std::string& param) {
+std::string Server::formatReply(int code, const std::string& target, const std::string& extra) {
 
 	std::stringstream ss;
 
@@ -188,21 +187,22 @@ std::string Server::formatReply(int code, const std::string& target, const std::
 	ss << std::setw(3) << std::setfill('0') << code << " ";
 	ss << (target.empty() ? "*" : target) << " ";
 
-	if (!param.empty()) {
-		ss << param << " ";
+	if (!extra.empty()) {
+		ss << extra << " ";
 	}
 
-	ss << replyMessages_[code] << "\r\n";
+    bool hasStaticMsg = replyMessages_.find(code) != replyMessages_.end();
+	ss << (hasStaticMsg ? replyMessages_[code] : "") << "\r\n";
 	return ss.str();
 }
 
-void Server::sendReply(std::shared_ptr<Client>& client, int code, const std::string& param) {
+void Server::sendReply(std::shared_ptr<Client>& client, int code, const std::string& extra) {
 	std::string target = client->getNickName();
 	if (target.empty()) {
 		target = "*";
 	}
 
-	std::string reply = formatReply(code, target, param);
+	std::string reply = formatReply(code, target, extra);
 	send(client->getFd(), reply.c_str(), reply.length(), 0);
 }
 
