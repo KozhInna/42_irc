@@ -9,6 +9,7 @@
 #include <poll.h>
 
 #define MAX_CLIENTS 128
+#define SERVER_VERSION "1.0"
 
 // numeric reply
 enum NumericReply {
@@ -17,11 +18,13 @@ enum NumericReply {
     RPL_YOURHOST = 002,
     RPL_CREATED = 003,
     RPL_MYINFO = 004,
+    RPL_ISUPPORT = 005,
 
     // Error replies
     ERR_NOSUCHNICK = 401,
     ERR_NOSUCHCHANNEL = 403,
     ERR_CANNOTSENDTOCHAN = 404,
+    ERR_NOMOTD = 422,
     ERR_UNKNOWNCOMMAND = 421,
     ERR_NONICKNAMEGIVEN = 431,
     ERR_ERRONEUSNICKNAME = 432,
@@ -73,13 +76,17 @@ class Server
 		int listenFd_;
 		int port_;
 		std::string password_;
-		std::string serverName_; //"irc.server.com"
+		const std::string serverName_; //"irc.server.com"
+        const std::string creationDate_;
 		std::unordered_map<int, std::shared_ptr<Client>> clients_;
 		std::unordered_map<std::string, std::shared_ptr<Channel>> channels_;
 
 		//related to poll()
 		struct pollfd pollFds[MAX_CLIENTS];
 		int nPollFds;
+
+        //server setting
+        const std::string getCreationDate() const;
 
 		//reply messages map
 		std::unordered_map<int, std::string> replyMessages_;
@@ -92,11 +99,13 @@ class Server
 		void readMsgFromClient(std::shared_ptr<Client> client);
 		void processMessage(std::shared_ptr<Client>& client, const std::string& msg);
 		ParsedCommand parseMessage(const std::string& msg);
+        void sendWelcome(std::shared_ptr<Client>& client);
 
 		//methods - commands handling
 		void checkCommand(std::shared_ptr<Client>& client, const ParsedCommand& c);
 		void handlePass(std::shared_ptr<Client>& client, const ParsedCommand& c);
 		void handleNick(std::shared_ptr<Client>& client, const ParsedCommand& c);
+		void handleUser(std::shared_ptr<Client>& client, const std::string& username, const std::string& realname, const size_t param_size);
         void handleQuit(std::shared_ptr<Client>& client, const ParsedCommand& c);
 		void handleJoin(std::shared_ptr<Client>& client, const ParsedCommand& c);
         bool isValidNickname(const std::string& nick);
@@ -107,5 +116,6 @@ class Server
 		void initReplyMessages();
 		std::string formatReply(int code, const std::string& target, const std::string& param = "");
 		void sendReply(std::shared_ptr<Client>& client, int code, const std::string& param = "");
-		void handleCommand(std::shared_ptr<Client>& client, const std::string& username, const std::string& realname, const size_t param_size);
+        void handleCap(std::shared_ptr<Client>& client, const ParsedCommand& c);
+        void handlePing(std::shared_ptr<Client>& client, const ParsedCommand& c);
 };

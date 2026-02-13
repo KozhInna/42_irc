@@ -6,6 +6,13 @@
 ParsedCommand Server::parseMessage(const std::string& msg) {
 	ParsedCommand c;
 	std::string s = msg;
+
+    // Strip \r\n from end
+    if (!s.empty() && s[s.length() - 1] == '\n')
+        s.erase(s.length() - 1);
+    if (!s.empty() && s[s.length() - 1] == '\r')
+        s.erase(s.length() - 1);
+
 	std::string temp;
 	size_t pos;
 
@@ -54,10 +61,13 @@ ParsedCommand Server::parseMessage(const std::string& msg) {
 }
 
 void Server::checkCommand(std::shared_ptr<Client>& client, const ParsedCommand& c) {
-    if (c.cmd == "USER") handleCommand(client, c.params[0], c.params[3], c.params.size());
+    if (c.cmd == "CAP") { handleCap(client, c); }   
+    else if (c.cmd == "PING") { handlePing(client, c); } 
+    else if (c.cmd == "USER") handleUser(client, c.params[0], c.params[3], c.params.size());
     else if (c.cmd == "NICK") handleNick(client, c);
     else if (c.cmd == "PASS") handlePass(client, c);
     else if (c.cmd == "QUIT") handleQuit(client, c);
+    
 
     // Commands that require registration
     else if (requiresRegistration(c.cmd)) {
