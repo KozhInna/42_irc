@@ -53,6 +53,10 @@ void Server::start()
 		throw std::runtime_error(std::string("socket() failed: ") + strerror(errno));
 	}
 
+    // Allow restart without waiting for port to be released
+    int opt = 1;
+    setsockopt(listenFd_, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
+
 	// Bind to all interfaces on specified port (state: BOUND)
 	struct sockaddr_in addr;
 	memset(&addr, 0, sizeof(addr));
