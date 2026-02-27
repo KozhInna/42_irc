@@ -72,7 +72,7 @@ void Server::checkCommand(std::shared_ptr<Client>& client, const ParsedCommand& 
     // Commands that require registration
     else if (requiresRegistration(c.cmd)) {
         if (!client->getRegistered()) {
-            sendReply(client, ERR_NOTREGISTERED, ""); 
+            sendNumericReply(client, ERR_NOTREGISTERED, ""); 
             return;
         }
         // Route to appropriate handler
@@ -84,7 +84,7 @@ void Server::checkCommand(std::shared_ptr<Client>& client, const ParsedCommand& 
         //else if (c.cmd == "TOPIC") handleTopic(client, c);
         //else if (c.cmd == "MODE") handleMode(client, c);
     } else {
-        sendReply(client, ERR_UNKNOWNCOMMAND, c.cmd); 
+        sendNumericReply(client, ERR_UNKNOWNCOMMAND, c.cmd); 
     }
 }
 

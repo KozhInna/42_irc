@@ -1,21 +1,21 @@
 #include "Server.hpp"
 #include "Client.hpp"
 #include <iostream>
- #include <sys/socket.h>
+#include <sys/socket.h>
 
 void Server::handlePass(std::shared_ptr<Client>& client, const ParsedCommand& c) {
     if (c.params.empty()) {
-        sendReply(client, ERR_NEEDMOREPARAMS, c.cmd); // 461 - Include command name
+        sendNumericReply(client, ERR_NEEDMOREPARAMS, c.cmd); // 461 - Include command name
         return;
     }
     if (client->getPassAccepted()) {
-        sendReply(client, ERR_ALREADYREGISTERED, "");
+        sendNumericReply(client, ERR_ALREADYREGISTERED, "");
         return;
     }
     // Only the first parameter is used; any extra words are ignored
     const std::string& firstParam = c.params[0];
     if (firstParam != password_) {
-        sendReply(client, ERR_PASSWDMISMATCH, "");
+        sendNumericReply(client, ERR_PASSWDMISMATCH, "");
         disconnectClient(client->getFd());
         return;
     }
@@ -30,21 +30,21 @@ void Server::handlePass(std::shared_ptr<Client>& client, const ParsedCommand& c)
  void Server::handleNick(std::shared_ptr<Client>& client, const ParsedCommand& c) {
     // check is Pass is accepted
     if (!client->getPassAccepted()) {
-        sendReply(client, ERR_NOTREGISTERED, ""); //There's NO standard IRC error, so send generic
+        sendNumericReply(client, ERR_NOTREGISTERED, ""); //There's NO standard IRC error, so send generic
         disconnectClient(client->getFd());
         return;
     }
 
     // check if nick is sent
     if (c.params.empty()) {
-        sendReply(client, ERR_NONICKNAMEGIVEN, "");
+        sendNumericReply(client, ERR_NONICKNAMEGIVEN, "");
         return;
     }
 
     const std::string& nickname = c.params[0];
     //check if nick is of valid format
     if (!isValidNickname(nickname)) {
-        sendReply(client, ERR_ERRONEUSNICKNAME, nickname); 
+        sendNumericReply(client, ERR_ERRONEUSNICKNAME, nickname); 
         return;
     }
     
@@ -52,7 +52,7 @@ void Server::handlePass(std::shared_ptr<Client>& client, const ParsedCommand& c)
     for (const auto& pair : clients_) {
         const std::shared_ptr<Client>& existingClient = pair.second;
         if (existingClient != client && nickname == existingClient->getNickName()) {
-            sendReply(client, ERR_NICKNAMEINUSE, nickname); 
+            sendNumericReply(client, ERR_NICKNAMEINUSE, nickname); 
             return;
         } 
     }
@@ -108,6 +108,9 @@ void Server::handlePass(std::shared_ptr<Client>& client, const ParsedCommand& c)
     // 3. Send ERROR to quitting client
     std::string errorMsg = "ERROR :Closing Link: " + serverName_ + " (" + quitMsg + ")\r\n";
     send(client->getFd(), errorMsg.c_str(), errorMsg.length(), 0);
+
+    // removes the client from members_, operators_, 
+    //and invited_ in every channel before erasing from clients_.
 
     //4. Close connection
     disconnectClient(client->getFd());
