@@ -89,9 +89,9 @@ bool Server::createChannel(const ParsedJoin& joinCmd, std::shared_ptr<Client>& c
 void Server::joinReplyMessages(std::shared_ptr<Channel>& channel, std::shared_ptr<Client>& client) {
     const std::string channelName = channel->getChannelName();
 
-    // 1. JOIN echo
+    // 1. JOIN echo to new user and all members of channel
     std::string reply = formatEchoReply(channelName, client);
-    sendEchoReply(reply, client);
+    broadcastToChannel(reply, channel);
 
     // 2. Topic (if exists)
     if (!channel->getTopic().empty()) {
@@ -101,7 +101,7 @@ void Server::joinReplyMessages(std::shared_ptr<Channel>& channel, std::shared_pt
 
     // 3. Nicknames of users list (353)
     // TODO: split 353 into multiple messages if users list exceeds ~400 chars
-    std::string users = channel->getAllChannelMembers();
+    std::string users = channel->getMembersList();
     std::string extra = "= " + channelName + " :" + users;
     sendNumericReply(client, 353, extra);
 
@@ -120,6 +120,12 @@ std::string Server::formatEchoReply(const std::string& channelName, std::shared_
     return reply;
 }
 
-void Server::sendEchoReply(const std::string& reply, std::shared_ptr<Client>& client) {
-    send(client->getFd(), reply.c_str(), reply.length(), 0);
+void Server::broadcastToChannel(const std::string& reply, std::shared_ptr<Channel>& channel) {
+    for (auto* member : channel->getMembers()) {
+        send(member->getFd(), reply.c_str(), reply.length(), 0);
+    }
 }
+
+/* void Server::sendReply(const std::string& reply, std::shared_ptr<Client>& client) {
+    send(client->getFd(), reply.c_str(), reply.length(), 0);
+} */

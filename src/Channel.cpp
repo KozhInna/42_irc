@@ -64,7 +64,7 @@ void Channel::removeInvited(Client* client) {
 	invited_.remove(client);
 }
 
-std::string Channel::getAllChannelMembers() {
+std::string Channel::getMembersList() {
     std::string users;
 
     for (auto op : operators_) {

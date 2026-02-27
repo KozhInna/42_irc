@@ -26,6 +26,7 @@ class Channel {
 		const std::string& getTopic() { return topic_; };
 		const std::string& getPassword() { return password_; };
 		size_t getMaxMembers() const { return maxMembers_; };
+        std::list<Client*> getMembers() const { return members_; };
 
 		// so i need to check if somebody is invited, add somebody to be invited,
 		// and remove from invited?
@@ -41,7 +42,7 @@ class Channel {
 		void addInvited(Client* client);
 		void removeInvited(Client* client);
 
-        std::string getAllChannelMembers();
+        std::string getMembersList();
         size_t getNumberMembers() { return members_.size(); };
 
 	
