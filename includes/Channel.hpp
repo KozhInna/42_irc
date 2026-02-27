@@ -6,25 +6,25 @@
 
 class Channel {
 	public:
-		Channel(const std::string& channelName, Client* client);
+		Channel(const std::string& channelName);
 		~Channel();
 
 		void setChannelName(const std::string& channelName) { channelName_ = channelName; };
 		void setInvitationFlag(bool inviteOnly) { inviteOnly_ = inviteOnly; };
 		void setRestrictionFlag(bool restrictedTopic) { restrictedTopic_ = restrictedTopic; };
-		void setHasKey(bool hasPassword) { hasPassword_ = hasPassword; };
-		void setKey(const std::string& password) { password_ = password; };
+		void setHasPassword(bool hasPassword) { hasPassword_ = hasPassword; };
+		void setPassword(const std::string& password) { password_ = password; };
 		void setLimitClients(bool limitClients) { limitClients_ = limitClients; };
 		void setMaxClients(size_t maxClients) { maxClients_ = maxClients; };
 
 		bool isInvitedOnly() const { return inviteOnly_; };
 		bool isRestricted() const { return restrictedTopic_; };
-		bool hasKey() const { return hasPassword_; };
+		bool hasPassword() const { return hasPassword_; };
 		bool hasLimit() const { return limitClients_; };
 
 		const std::string& getChannelName() { return channelName_; };
 		const std::string& getTopic() { return topic_; };
-		const std::string& getKey() { return password_; };
+		const std::string& getPassword() { return password_; };
 		size_t getMaxClients() const { return maxClients_; };
 
 		// so i need to check if somebody is invited, add somebody to be invited,
@@ -40,6 +40,8 @@ class Channel {
 		bool isInvited(Client* client);
 		void addInvited(Client* client);
 		void removeInvited(Client* client);
+
+        std::string getAllChannelUsers();
 
 	
 	private:
