@@ -29,13 +29,15 @@ enum NumericReply {
     ERR_NONICKNAMEGIVEN = 431,
     ERR_ERRONEUSNICKNAME = 432,
     ERR_NICKNAMEINUSE = 433,
+    ERR_NOTONCHANNEL = 442,
 	ERR_NOTREGISTERED = 451,
     ERR_NEEDMOREPARAMS = 461, //Include command name
     ERR_ALREADYREGISTERED = 462,
     ERR_PASSWDMISMATCH = 464,
     ERR_CHANNELISFULL = 471,
     ERR_INVITEONLYCHAN = 473,
-    ERR_BADCHANNELKEY = 475
+    ERR_BADCHANNELKEY = 475,
+    ERR_CHANOPRIVSNEEDED = 482
 };
 
 struct ParsedCommand
@@ -117,6 +119,7 @@ class Server
         void joinReplyMessages(std::shared_ptr<Channel>& channel, std::shared_ptr<Client>& client);
         std::string formatEchoReply(const std::string& channelName, std::shared_ptr<Client>& client);
         void sendEchoReply(const std::string& reply, std::shared_ptr<Client>& client);
+        std::shared_ptr<Channel> findChannel(const std::string& channelName);
 
 		// methods - Reply/Error handling
 		void initReplyMessages();

@@ -9,7 +9,7 @@
 // also we handle join 0
 //TODO: fix parsing to allow only "JOIN #chan1 pass" 
 //TODO: (now i can enter smth like "JOIN JOIN JOIN JOIN" or "JOIN #cnan1 #cnan1")
-//TODO: validate key if provided
+//TODO: validate key if provided (If the value is invalid, they SHOULD return ERR_INVALIDMODEPARAM)
 //TODO: handle error - no channel name (JOIN)
 ParsedJoin Server::parseJoin(std::shared_ptr<Client>& client, const ParsedCommand& c) {
 	ParsedJoin p {.channel = "", .password = ""};
@@ -35,20 +35,37 @@ ParsedJoin Server::parseJoin(std::shared_ptr<Client>& client, const ParsedComman
 }
 
 void Server::handleJoin(std::shared_ptr<Client>& client, const ParsedCommand& c) {
-	ParsedJoin p;
-	p = parseJoin(client, c);
-    std::cout << p.channel << " " << p.password << std::endl;
+	ParsedJoin p = parseJoin(client, c);
 
-    createChannel(p, client);
-    //if (!createChannel(p, client))
-     //search channeal among existed
+    if (!createChannel(p, client)) {
+        std::shared_ptr<Channel> channel = findChannel(p.channel);
+        if (channel->isInvitedOnly() && !channel->isInvited(client.get())) {
+                sendNumericReply(client, ERR_INVITEONLYCHAN, channel->getChannelName());
+                return ;
+            }
+        if (channel->hasPassword() && channel->getPassword() != p.password) {
+                sendNumericReply(client, ERR_BADCHANNELKEY, channel->getChannelName());
+                return ;
+        }
+        if (channel->hasLimit() && channel->getNumberMembers() >= channel->getMaxMembers()) {
+            sendNumericReply(client, ERR_CHANNELISFULL, channel->getChannelName());
+            return ;
+        }
+        channel->addMember(client.get());
+        joinReplyMessages(channel, client);
+    }
+}
+
+std::shared_ptr<Channel> Server::findChannel(const std::string& channelName) {
+    auto it = channels_.find(channelName);
+    return (it != channels_.end()) ? it->second : nullptr;
 }
 
 bool Server::createChannel(const ParsedJoin& joinCmd, std::shared_ptr<Client>& client) {
     const std::string channelName = joinCmd.channel;
     const std::string chanPassword = joinCmd.password;
 
-    if (channels_.find(channelName) == channels_.end()) {
+    if (!findChannel(channelName)) {
         //create channel
         std::shared_ptr<Channel> channel = std::make_shared<Channel>(channelName);
 
@@ -83,7 +100,8 @@ void Server::joinReplyMessages(std::shared_ptr<Channel>& channel, std::shared_pt
     }
 
     // 3. Nicknames of users list (353)
-    std::string users = channel->getAllChannelUsers();
+    // TODO: split 353 into multiple messages if users list exceeds ~400 chars
+    std::string users = channel->getAllChannelMembers();
     std::string extra = "= " + channelName + " :" + users;
     sendNumericReply(client, 353, extra);
 

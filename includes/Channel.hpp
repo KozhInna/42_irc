@@ -14,18 +14,18 @@ class Channel {
 		void setRestrictionFlag(bool restrictedTopic) { restrictedTopic_ = restrictedTopic; };
 		void setHasPassword(bool hasPassword) { hasPassword_ = hasPassword; };
 		void setPassword(const std::string& password) { password_ = password; };
-		void setLimitClients(bool limitClients) { limitClients_ = limitClients; };
-		void setMaxClients(size_t maxClients) { maxClients_ = maxClients; };
+		void setLimitMembers(bool limitMembers) { limitMembers_ = limitMembers; };
+		void setMaxMembers(size_t maxMembers) { maxMembers_ = maxMembers; };
 
 		bool isInvitedOnly() const { return inviteOnly_; };
 		bool isRestricted() const { return restrictedTopic_; };
 		bool hasPassword() const { return hasPassword_; };
-		bool hasLimit() const { return limitClients_; };
+		bool hasLimit() const { return limitMembers_; };
 
 		const std::string& getChannelName() { return channelName_; };
 		const std::string& getTopic() { return topic_; };
 		const std::string& getPassword() { return password_; };
-		size_t getMaxClients() const { return maxClients_; };
+		size_t getMaxMembers() const { return maxMembers_; };
 
 		// so i need to check if somebody is invited, add somebody to be invited,
 		// and remove from invited?
@@ -41,7 +41,8 @@ class Channel {
 		void addInvited(Client* client);
 		void removeInvited(Client* client);
 
-        std::string getAllChannelUsers();
+        std::string getAllChannelMembers();
+        size_t getNumberMembers() { return members_.size(); };
 
 	
 	private:
@@ -51,8 +52,8 @@ class Channel {
 		bool inviteOnly_;
 		bool restrictedTopic_;
 		bool hasPassword_;
-		bool limitClients_;
-		size_t maxClients_; // max amount of users
+		bool limitMembers_;
+		size_t maxMembers_; // max amount of users
 		
 		std::list<Client*> members_;
 		std::list<Client*> operators_;

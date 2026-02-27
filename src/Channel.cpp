@@ -6,8 +6,8 @@ Channel::Channel(const std::string& channelName)
         inviteOnly_(false),
         restrictedTopic_(false),
         hasPassword_(false),
-        limitClients_(false),
-        maxClients_(0)
+        limitMembers_(false),
+        maxMembers_(0)
 {
 
 }
@@ -64,7 +64,7 @@ void Channel::removeInvited(Client* client) {
 	invited_.remove(client);
 }
 
-std::string Channel::getAllChannelUsers() {
+std::string Channel::getAllChannelMembers() {
     std::string users;
 
     for (auto op : operators_) {
