@@ -6,17 +6,17 @@
 
 void Server::handleUser(std::shared_ptr<Client>& client, const std::string& username, const std::string& realname, const size_t param_size) {
     if (client->getRegistered()) {
-        sendReply(client, ERR_ALREADYREGISTERED, "USER");
+        sendNumericReply(client, ERR_ALREADYREGISTERED, "USER");
         return;
     }
 
     if (client->getNickName().empty() || !client->getPassAccepted()) {
-        sendReply(client, ERR_NOTREGISTERED, "USER");
+        sendNumericReply(client, ERR_NOTREGISTERED, "USER");
         return;
     }
 
     if (param_size != 4) {
-        sendReply(client, ERR_NEEDMOREPARAMS, "USER");
+        sendNumericReply(client, ERR_NEEDMOREPARAMS, "USER");
         return;
     }
 
@@ -32,12 +32,12 @@ void Server::sendWelcome(std::shared_ptr<Client>& client) {
     std::string user = client->getUserName();
     std::string host = client->getHostName();
 
-    sendReply(client, RPL_WELCOME, ":Welcome to the 42Network, " + nick);
-    sendReply(client, RPL_YOURHOST, ":Your host is " + serverName_ + ", running version " + SERVER_VERSION);
-    sendReply(client, RPL_CREATED, ":This server was created on " + creationDate_);
-    sendReply(client, RPL_MYINFO, serverName_ + " " + SERVER_VERSION + " " + "o itkl");
-    sendReply(client, RPL_ISUPPORT, "NETWORK=42Network NICKLEN=9 CHANMODES=itkl PREFIX=(o)@ :are supported by this server");
-    sendReply(client, ERR_NOMOTD, "");
+    sendNumericReply(client, RPL_WELCOME, ":Welcome to the 42Network, " + nick);
+    sendNumericReply(client, RPL_YOURHOST, ":Your host is " + serverName_ + ", running version " + SERVER_VERSION);
+    sendNumericReply(client, RPL_CREATED, ":This server was created on " + creationDate_);
+    sendNumericReply(client, RPL_MYINFO, serverName_ + " " + SERVER_VERSION + " " + "o itkl");
+    sendNumericReply(client, RPL_ISUPPORT, "NETWORK=42Network NICKLEN=9 CHANMODES=itkl PREFIX=(o)@ :are supported by this server");
+    sendNumericReply(client, ERR_NOMOTD, "");
 }
 
 //CAP cmd used for capability negotiation between a server and a client

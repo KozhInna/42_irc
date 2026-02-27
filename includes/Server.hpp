@@ -110,12 +110,18 @@ class Server
 		void handleJoin(std::shared_ptr<Client>& client, const ParsedCommand& c);
         bool isValidNickname(const std::string& nick);
         bool requiresRegistration(const std::string& cmd);
+		ParsedJoin parseJoin(std::shared_ptr<Client>& client, const ParsedCommand& c);
+
+        //JOIN cmd methods
+        bool createChannel(const ParsedJoin& joinCmd, std::shared_ptr<Client>& client);
+        void joinReplyMessages(std::shared_ptr<Channel>& channel, std::shared_ptr<Client>& client);
+        std::string formatEchoReply(const std::string& channelName, std::shared_ptr<Client>& client);
+        void sendEchoReply(const std::string& reply, std::shared_ptr<Client>& client);
 
 		// methods - Reply/Error handling
-		ParsedJoin parseJoin(std::shared_ptr<Client>& client, const ParsedCommand& c);
 		void initReplyMessages();
-		std::string formatReply(int code, const std::string& target, const std::string& param = "");
-		void sendReply(std::shared_ptr<Client>& client, int code, const std::string& param = "");
+		std::string formatNumericReply(int code, const std::string& target, const std::string& param = "");
+		void sendNumericReply(std::shared_ptr<Client>& client, int code, const std::string& param = "");
         void handleCap(std::shared_ptr<Client>& client, const ParsedCommand& c);
         void handlePing(std::shared_ptr<Client>& client, const ParsedCommand& c);
 };

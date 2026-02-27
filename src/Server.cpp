@@ -106,6 +106,10 @@ void Server::run() {
 	}
 }
 
+// Called after poll() signals activity on listenFd_.
+// accept() fills clientSock with the client's IP/port and returns a new fd.
+// inet_ntop converts the binary IP to a string hostname.
+// We store both in a new Client object.
 std::shared_ptr<Client> Server::acceptNewClient() {
 	struct sockaddr_in clientSock;
 	socklen_t clientSockLen = sizeof(clientSock);
@@ -182,7 +186,7 @@ void Server::initReplyMessages() {
     replyMessages_[ERR_NOMOTD] = ":MOTD File is missing";
 }
 
-std::string Server::formatReply(int code, const std::string& target, const std::string& extra) {
+std::string Server::formatNumericReply(int code, const std::string& target, const std::string& extra) {
 
 	std::stringstream ss;
 
@@ -202,13 +206,13 @@ std::string Server::formatReply(int code, const std::string& target, const std::
 	return ss.str();
 }
 
-void Server::sendReply(std::shared_ptr<Client>& client, int code, const std::string& extra) {
+void Server::sendNumericReply(std::shared_ptr<Client>& client, int code, const std::string& extra) {
 	std::string target = client->getNickName();
 	if (target.empty()) {
 		target = "*";
 	}
 
-	std::string reply = formatReply(code, target, extra);
+	std::string reply = formatNumericReply(code, target, extra);
 	send(client->getFd(), reply.c_str(), reply.length(), 0);
 }
 

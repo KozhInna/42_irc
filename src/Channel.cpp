@@ -1,15 +1,14 @@
 #include "Channel.hpp"
 
 //constructor
-Channel::Channel(const std::string& channelName, Client* client){
-	channelName_ = channelName;
-	inviteOnly_ = false;
-	restrictedTopic_ = false;
-	hasPassword_ = false;
-	limitClients_ = false;
-	maxClients_ =  0;
-	addMember(client);
-	addOperator(client);
+Channel::Channel(const std::string& channelName) 
+    :   channelName_(channelName),
+        inviteOnly_(false),
+        restrictedTopic_(false),
+        hasPassword_(false),
+        limitClients_(false),
+        maxClients_(0)
+{
 
 }
 
@@ -63,4 +62,23 @@ void Channel::addInvited(Client* client) {
 
 void Channel::removeInvited(Client* client) {
 	invited_.remove(client);
+}
+
+std::string Channel::getAllChannelUsers() {
+    std::string users;
+
+    for (auto op : operators_) {
+        users += "@" + op->getNickName() + " ";
+    }
+
+    for (auto user : members_) {
+        if (!isOperator(user)) {
+            users += user->getNickName() + " ";
+        }
+    }
+
+    if (!users.empty()) {
+        users.pop_back();
+    }
+    return users;
 }
