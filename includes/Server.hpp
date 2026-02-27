@@ -118,8 +118,8 @@ class Server
         bool createChannel(const ParsedJoin& joinCmd, std::shared_ptr<Client>& client);
         void joinReplyMessages(std::shared_ptr<Channel>& channel, std::shared_ptr<Client>& client);
         std::string formatEchoReply(const std::string& channelName, std::shared_ptr<Client>& client);
-        void sendEchoReply(const std::string& reply, std::shared_ptr<Client>& client);
         std::shared_ptr<Channel> findChannel(const std::string& channelName);
+        void broadcastToChannel(const std::string& reply, std::shared_ptr<Channel>& channel);
 
 		// methods - Reply/Error handling
 		void initReplyMessages();
