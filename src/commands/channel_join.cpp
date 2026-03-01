@@ -95,8 +95,8 @@ void Server::joinReplyMessages(std::shared_ptr<Channel>& channel, std::shared_pt
     const std::string channelName = channel->getChannelName();
 
     // 1. JOIN echo to new user and all members of channel
-    std::string reply = formatEchoReply(channelName, client);
-    broadcastToChannel(reply, channel);
+    std::string reply = formatClientAction(client, "JOIN", ":" + channelName);
+    channel->broadcastToChannel(reply);
 
     // 2. Topic (if exists)
     if (!channel->getTopic().empty()) {
@@ -115,7 +115,7 @@ void Server::joinReplyMessages(std::shared_ptr<Channel>& channel, std::shared_pt
     sendNumericReply(client, 366, extra);
 }
 
-std::string Server::formatEchoReply(const std::string& channelName, std::shared_ptr<Client>& client) {
+/* std::string Server::formatEchoReply(const std::string& channelName, std::shared_ptr<Client>& client) {
     std::string nick = client->getNickName();
     std::string name = client->getUserName();
     std::string host = client->getHostName();
@@ -123,14 +123,13 @@ std::string Server::formatEchoReply(const std::string& channelName, std::shared_
     std::string userPrefix = ":" + nick + "!" + name + "@" + host;
     std::string reply = userPrefix + " JOIN :" + channelName + "\r\n";
     return reply;
-}
-
-void Server::broadcastToChannel(const std::string& reply, std::shared_ptr<Channel>& channel) {
-    for (auto* member : channel->getMembers()) {
-        send(member->getFd(), reply.c_str(), reply.length(), 0);
-    }
-}
-
-/* void Server::sendReply(const std::string& reply, std::shared_ptr<Client>& client) {
-    send(client->getFd(), reply.c_str(), reply.length(), 0);
 } */
+
+std::string Server::formatClientAction(std::shared_ptr<Client>& client, const std::string& command,
+    const std::string& params) {
+    std::string prefix = ":" + client->getNickName() + "!" + 
+                        client->getUserName() + "@" + 
+                        client->getHostName();
+
+    return prefix + " " + command + " " + params + "\r\n";
+}
