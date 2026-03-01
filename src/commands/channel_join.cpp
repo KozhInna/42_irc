@@ -39,6 +39,11 @@ void Server::handleJoin(std::shared_ptr<Client>& client, const ParsedCommand& c)
 
     if (!createChannel(p, client)) {
         std::shared_ptr<Channel> channel = findChannel(p.channel);
+
+        if (channel->isMember(client.get())) {
+            return ;
+        }
+
         if (channel->isInvitedOnly() && !channel->isInvited(client.get())) {
                 sendNumericReply(client, ERR_INVITEONLYCHAN, channel->getChannelName());
                 return ;

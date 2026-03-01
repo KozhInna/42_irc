@@ -15,12 +15,13 @@ ParsedCommand Server::parseMessage(const std::string& msg) {
 
 	std::string temp;
 	size_t pos;
+    bool hasColumn = false;
 
 	// first check if there is a ":" and save that to temp
 	if ((pos = s.find(':')) != std::string::npos) {
-		temp = s.substr(pos, s.substr(pos, s.length()).length());
-		s.erase(pos, temp.length());
-		temp.erase(0, 1); // removes the ":"
+        hasColumn = true;
+		temp = s.substr(pos + 1); // removes the ":"
+		s.erase(pos);
 	}
 
 	// command
@@ -54,9 +55,10 @@ ParsedCommand Server::parseMessage(const std::string& msg) {
 			c.params.push_back(s);
 	}
 
-	// add temp if it is not empthy
-	if (!temp.empty())
+	// add temp even if empty after :
+	if (hasColumn) {
 		c.params.push_back(temp);
+    }
 	return c;
 }
 
@@ -81,7 +83,7 @@ void Server::checkCommand(std::shared_ptr<Client>& client, const ParsedCommand& 
         //else if (c.cmd == "PRIVMSG") handlePrivmsg(client, c);
         //else if (c.cmd == "KICK") handleKick(client, c);
         //else if (c.cmd == "INVITE") handleInvite(client, c);
-        //else if (c.cmd == "TOPIC") handleTopic(client, c);
+        else if (c.cmd == "TOPIC") handleTopic(client, c);
         //else if (c.cmd == "MODE") handleMode(client, c);
     } else {
         sendNumericReply(client, ERR_UNKNOWNCOMMAND, c.cmd); 
