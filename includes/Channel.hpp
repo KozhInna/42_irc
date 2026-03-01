@@ -16,6 +16,10 @@ class Channel {
 		void setPassword(const std::string& password) { password_ = password; };
 		void setLimitMembers(bool limitMembers) { limitMembers_ = limitMembers; };
 		void setMaxMembers(size_t maxMembers) { maxMembers_ = maxMembers; };
+        void setTopicAuthor(Client* client) { topicAuthor_ = client->getNickName(); };
+        void setTopicTimestamp() { topicTimestamp_ = time(0); }
+        void setTopic(const std::string& newTopic) { topic_ = newTopic; };
+
 
 		bool isInvitedOnly() const { return inviteOnly_; };
 		bool isRestricted() const { return restrictedTopic_; };
@@ -27,6 +31,8 @@ class Channel {
 		const std::string& getPassword() { return password_; };
 		size_t getMaxMembers() const { return maxMembers_; };
         std::list<Client*> getMembers() const { return members_; };
+        const std::string& getTopicAuthor() const { return topicAuthor_; };
+        time_t getTopicTimestamp() const { return topicTimestamp_; };
 
 		// so i need to check if somebody is invited, add somebody to be invited,
 		// and remove from invited?
@@ -44,6 +50,8 @@ class Channel {
 
         std::string getMembersList();
         size_t getNumberMembers() { return members_.size(); };
+        void broadcastToChannel(const std::string& reply);
+
 
 	
 	private:
@@ -55,6 +63,8 @@ class Channel {
 		bool hasPassword_;
 		bool limitMembers_;
 		size_t maxMembers_; // max amount of users
+        std::string topicAuthor_;
+        time_t topicTimestamp_;
 		
 		std::list<Client*> members_;
 		std::list<Client*> operators_;

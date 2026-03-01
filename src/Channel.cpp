@@ -1,4 +1,5 @@
 #include "Channel.hpp"
+#include <sys/socket.h>
 
 //constructor
 Channel::Channel(const std::string& channelName) 
@@ -81,4 +82,10 @@ std::string Channel::getMembersList() {
         users.pop_back();
     }
     return users;
+}
+
+void Channel::broadcastToChannel(const std::string& reply) {
+    for (auto* member : members_) {
+        send (member->getFd(), reply.c_str(), reply.length(), 0);
+    }
 }
