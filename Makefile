@@ -7,7 +7,7 @@ CXXFLAGS := -Werror -Wextra -Wall -std=c++20 -I./includes
 SRCDIR := src
 # Add source files here as you create them
 SRCS := $(SRCDIR)/main.cpp $(SRCDIR)/Server.cpp $(SRCDIR)/Client.cpp $(SRCDIR)//commands/channel_join.cpp $(SRCDIR)/Server_utils.cpp $(SRCDIR)/commands/auth_utils.cpp \
-	$(SRCDIR)/commands/auth.cpp $(SRCDIR)/Channel.cpp
+	$(SRCDIR)/commands/auth.cpp $(SRCDIR)/Channel.cpp $(SRCDIR)//commands/channel_topic.cpp
 
 
 OBJDIR := obj

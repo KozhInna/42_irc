@@ -37,7 +37,12 @@ enum NumericReply {
     ERR_CHANNELISFULL = 471,
     ERR_INVITEONLYCHAN = 473,
     ERR_BADCHANNELKEY = 475,
-    ERR_CHANOPRIVSNEEDED = 482
+    ERR_CHANOPRIVSNEEDED = 482,
+
+    //Channel replies
+    RPL_NOTOPIC = 331,
+    RPL_TOPIC = 332,
+    RPL_TOPICWHOTIME = 333
 };
 
 struct ParsedCommand
@@ -109,17 +114,19 @@ class Server
 		void handleNick(std::shared_ptr<Client>& client, const ParsedCommand& c);
 		void handleUser(std::shared_ptr<Client>& client, const std::string& username, const std::string& realname, const size_t param_size);
         void handleQuit(std::shared_ptr<Client>& client, const ParsedCommand& c);
-		void handleJoin(std::shared_ptr<Client>& client, const ParsedCommand& c);
         bool isValidNickname(const std::string& nick);
         bool requiresRegistration(const std::string& cmd);
 		ParsedJoin parseJoin(std::shared_ptr<Client>& client, const ParsedCommand& c);
-
+        
         //JOIN cmd methods
+		void handleJoin(std::shared_ptr<Client>& client, const ParsedCommand& c);
         bool createChannel(const ParsedJoin& joinCmd, std::shared_ptr<Client>& client);
         void joinReplyMessages(std::shared_ptr<Channel>& channel, std::shared_ptr<Client>& client);
-        std::string formatEchoReply(const std::string& channelName, std::shared_ptr<Client>& client);
         std::shared_ptr<Channel> findChannel(const std::string& channelName);
-        void broadcastToChannel(const std::string& reply, std::shared_ptr<Channel>& channel);
+        std::string formatClientAction(std::shared_ptr<Client>& client, const std::string& command, const std::string& params);
+
+        //TOPIC cmd methods
+        void handleTopic(std::shared_ptr<Client>& client, const ParsedCommand& c);
 
 		// methods - Reply/Error handling
 		void initReplyMessages();
