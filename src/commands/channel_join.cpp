@@ -39,12 +39,13 @@ void Server::handleJoin(std::shared_ptr<Client>& client, const ParsedCommand& c)
 
     if (!createChannel(p, client)) {
         std::shared_ptr<Channel> channel = findChannel(p.channel);
+        Client *client_ptr = client.get();
 
-        if (channel->isMember(client.get())) {
+        if (channel->isMember(client_ptr)) {
             return ;
         }
 
-        if (channel->isInvitedOnly() && !channel->isInvited(client.get())) {
+        if (channel->isInvitedOnly() && !channel->isInvited(client_ptr)) {
                 sendNumericReply(client, ERR_INVITEONLYCHAN, channel->getChannelName());
                 return ;
             }
@@ -56,7 +57,10 @@ void Server::handleJoin(std::shared_ptr<Client>& client, const ParsedCommand& c)
             sendNumericReply(client, ERR_CHANNELISFULL, channel->getChannelName());
             return ;
         }
-        channel->addMember(client.get());
+        channel->addMember(client_ptr);
+        if (channel->isInvited(client_ptr)) {
+            channel->removeInvited(client_ptr);
+        }
         joinReplyMessages(channel, client);
     }
 }
@@ -114,16 +118,6 @@ void Server::joinReplyMessages(std::shared_ptr<Channel>& channel, std::shared_pt
     extra = channelName + " :End of /NAMES list";
     sendNumericReply(client, 366, extra);
 }
-
-/* std::string Server::formatEchoReply(const std::string& channelName, std::shared_ptr<Client>& client) {
-    std::string nick = client->getNickName();
-    std::string name = client->getUserName();
-    std::string host = client->getHostName();
-
-    std::string userPrefix = ":" + nick + "!" + name + "@" + host;
-    std::string reply = userPrefix + " JOIN :" + channelName + "\r\n";
-    return reply;
-} */
 
 std::string Server::formatClientAction(std::shared_ptr<Client>& client, const std::string& command,
     const std::string& params) {
