@@ -103,20 +103,8 @@ void Server::handleQuit(std::shared_ptr<Client>& client, const ParsedCommand& c)
     Client *client_ptr = client.get();
 
     // 1. Remove client from channel, notify everybody
-    std::string reply = formatClientAction(client, "QUIT", ":Quit: " + quitMsg);
-    for (const auto& [key, channel] : channels_) {
-        if (channel->isMember(client_ptr)) {
-            channel->removeMember(client_ptr);
-            if (channel->isOperator(client_ptr)) {
-                channel->removeOperator(client_ptr);
-            }
-            channel->broadcastToChannel(reply);
-        } else {
-            if (channel->isInvited(client_ptr)) {
-                channel->removeInvited(client_ptr);
-            }
-        }
-    }
+    std::string quiteReason = formatClientAction(client, "QUIT", ":Quit: " + quitMsg);
+    broadcastQuitAndCleanup(client_ptr, quiteReason);
 
     // 2. Send ERROR to quitting client
     std::string errorMsg = "ERROR :Closing Link: " + serverName_ + " (" + quitMsg + ")\r\n";

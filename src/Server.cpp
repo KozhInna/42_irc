@@ -99,8 +99,12 @@ void Server::run() {
 					readMsgFromClient(it->second);
 				}
 			} else if (pollFds[i].revents & (POLLHUP | POLLERR)) {
-				std::cerr << "Client socket error (POLLHUP/POLLERR)" << std::endl;
-				disconnectClient(pollFds[i].fd);
+                auto it = clients_.find(pollFds[i].fd);
+                if (it != clients_.end()) {
+                    std::string reply = formatClientAction(it->second, "QUIT", " :Connection lost");
+                    broadcastQuitAndCleanup(it->second.get(), reply);
+                    disconnectClient(pollFds[i].fd);
+                }
             }
 		}
 	}
