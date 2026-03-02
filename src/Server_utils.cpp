@@ -95,3 +95,19 @@ bool Server::requiresRegistration(const std::string& cmd) {
             cmd == "KICK" || cmd == "INVITE" || cmd == "TOPIC" || 
             cmd == "MODE");
 }
+
+void Server::broadcastQuitAndCleanup(Client* client_ptr, const std::string& quitReason) {
+    for (const auto& [key, channel] : channels_) {
+            if (channel->isMember(client_ptr)) {
+                channel->removeMember(client_ptr);
+                if (channel->isOperator(client_ptr)) {
+                    channel->removeOperator(client_ptr);
+                }
+                channel->broadcastToChannel(quitReason);
+            } else {
+                if (channel->isInvited(client_ptr)) {
+                    channel->removeInvited(client_ptr);
+                }
+            }
+    }
+}

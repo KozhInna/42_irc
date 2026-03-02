@@ -124,6 +124,7 @@ class Server
         void joinReplyMessages(std::shared_ptr<Channel>& channel, std::shared_ptr<Client>& client);
         std::shared_ptr<Channel> findChannel(const std::string& channelName);
         std::string formatClientAction(std::shared_ptr<Client>& client, const std::string& command, const std::string& params);
+        void broadcastQuitAndCleanup(Client* client_ptr, const std::string& quitReason);
 
         //TOPIC cmd methods
         void handleTopic(std::shared_ptr<Client>& client, const ParsedCommand& c);
