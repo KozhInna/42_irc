@@ -50,7 +50,7 @@ class Channel {
 
         std::string getMembersList();
         size_t getNumberMembers() { return members_.size(); };
-        void broadcastToChannel(const std::string& reply);
+        void broadcastToChannel(const std::string& reply, Client* excludeClient = nullptr);
 
 
 	

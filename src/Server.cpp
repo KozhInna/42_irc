@@ -190,7 +190,9 @@ void Server::initReplyMessages() {
     replyMessages_[ERR_NOMOTD] = ":MOTD File is missing";
 
         // Channel errors
+    replyMessages_[ERR_NOSUCHNICK] = ":No such nick/channel"; // 401
     replyMessages_[ERR_NOSUCHCHANNEL] = ":No such channel"; // 403
+    replyMessages_[ERR_CANNOTSENDTOCHAN] = ":Cannot send to channel"; // 404
     replyMessages_[ERR_NOTONCHANNEL] = ":No such channel"; // 442
     replyMessages_[ERR_INVITEONLYCHAN] = ":Cannot join channel (+i)";  // 473
     replyMessages_[ERR_BADCHANNELKEY] = ":Cannot join channel (+k)";   // 475

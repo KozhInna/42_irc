@@ -129,6 +129,12 @@ class Server
         //TOPIC cmd methods
         void handleTopic(std::shared_ptr<Client>& client, const ParsedCommand& c);
 
+        //PRIVMSG
+        void handlePrivmsg(std::shared_ptr<Client>& client, const ParsedCommand& c);
+        std::shared_ptr<Client> getClientByNick(const std::string& nick);
+
+
+
 		// methods - Reply/Error handling
 		void initReplyMessages();
 		std::string formatNumericReply(int code, const std::string& target, const std::string& param = "");

@@ -84,8 +84,11 @@ std::string Channel::getMembersList() {
     return users;
 }
 
-void Channel::broadcastToChannel(const std::string& reply) {
+void Channel::broadcastToChannel(const std::string& reply, Client* excludeClient) {
     for (auto* member : members_) {
+        if (excludeClient && member == excludeClient) {
+            continue;
+        }
         send (member->getFd(), reply.c_str(), reply.length(), 0);
     }
 }
