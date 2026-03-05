@@ -193,11 +193,11 @@ void Server::initReplyMessages() {
     replyMessages_[ERR_NOSUCHNICK] = ":No such nick/channel"; // 401
     replyMessages_[ERR_NOSUCHCHANNEL] = ":No such channel"; // 403
     replyMessages_[ERR_CANNOTSENDTOCHAN] = ":Cannot send to channel"; // 404
-    replyMessages_[ERR_NOTONCHANNEL] = ":No such channel"; // 442
+    replyMessages_[ERR_USERNOTINCHANNEL] = ":They aren't on that channel"; // 441
+    replyMessages_[ERR_NOTONCHANNEL] = ":You're not on that channel";  // 442
     replyMessages_[ERR_INVITEONLYCHAN] = ":Cannot join channel (+i)";  // 473
     replyMessages_[ERR_BADCHANNELKEY] = ":Cannot join channel (+k)";   // 475
     replyMessages_[ERR_CHANNELISFULL] = ":Cannot join channel (+l)";   // 471
-    replyMessages_[ERR_NOTONCHANNEL] = ":You're not on that channel";  // 442
     replyMessages_[ERR_CHANOPRIVSNEEDED] = ":You're not channel operator"; // 482
 
     // Channel replies

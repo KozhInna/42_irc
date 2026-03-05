@@ -29,6 +29,7 @@ enum NumericReply {
     ERR_NONICKNAMEGIVEN = 431,
     ERR_ERRONEUSNICKNAME = 432,
     ERR_NICKNAMEINUSE = 433,
+    ERR_USERNOTINCHANNEL = 441,
     ERR_NOTONCHANNEL = 442,
 	ERR_NOTREGISTERED = 451,
     ERR_NEEDMOREPARAMS = 461, //Include command name
@@ -133,7 +134,8 @@ class Server
         void handlePrivmsg(std::shared_ptr<Client>& client, const ParsedCommand& c);
         std::shared_ptr<Client> getClientByNick(const std::string& nick);
 
-
+        //KICK
+        void handleKick(std::shared_ptr<Client>& client, const ParsedCommand& c);
 
 		// methods - Reply/Error handling
 		void initReplyMessages();
