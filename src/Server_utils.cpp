@@ -43,7 +43,9 @@ ParsedCommand Server::parseMessage(const std::string& msg) {
 
 	// then split the rest by spaces
 	while ((pos = s.find(' ')) != std::string::npos) {
-		c.params.push_back(s.substr(0, pos));
+		if (pos != 0) {
+			c.params.push_back(s.substr(0, pos));
+		}
 		s.erase(0, pos + 1);
 	}
 

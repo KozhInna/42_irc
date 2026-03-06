@@ -13,6 +13,7 @@
 //TODO: handle error - no channel name (JOIN)
 ParsedJoin Server::parseJoin(std::shared_ptr<Client>& client, const ParsedCommand& c) {
 	ParsedJoin p {.channel = "", .password = ""};
+	size_t pos = 0;
 
 	// if no parameters then cancel
 	if (c.params.empty()) {
@@ -22,22 +23,35 @@ ParsedJoin Server::parseJoin(std::shared_ptr<Client>& client, const ParsedComman
 
 	p.channel = c.params[0];
 
-	// we got 0, and no other params, return
-	if (p.channel == "0") {
-		// leave all channels
+	// trump everything after ','
+	if ((pos = p.channel.find(',')) != std::string::npos) {
+		p.channel = p.channel.substr(0, pos);
+	}
+
+	// channe must start with '#' and must have something after '#'
+	if (p.channel.empty() || p.channel[0] != '#' || p.channel.length() == 1) {
+		sendNumericReply(client, ERR_NOSUCHCHANNEL, c.cmd);
+		p.channel = "";
 		return p;
 	}
 	
 	// we return channel and password, the password maybe empty
 	if (c.params.size() >= 2)
 		p.password = c.params[1];
+
+	// trump everything after ','
+	if ((pos = p.password.find(',')) != std::string::npos) {
+		p.password = p.password.substr(0, pos);
+	}
+
 	return p;
 }
 
 void Server::handleJoin(std::shared_ptr<Client>& client, const ParsedCommand& c) {
 	ParsedJoin p = parseJoin(client, c);
 
-    if (p.channel.empty()) return;
+	if (p.channel.empty())
+		return ;
 
     if (!createChannel(p, client)) {
         std::shared_ptr<Channel> channel = findChannel(p.channel);
