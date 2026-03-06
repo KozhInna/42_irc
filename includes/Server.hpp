@@ -31,6 +31,7 @@ enum NumericReply {
     ERR_NICKNAMEINUSE = 433,
     ERR_USERNOTINCHANNEL = 441,
     ERR_NOTONCHANNEL = 442,
+    ERR_USERONCHANNEL = 443,
 	ERR_NOTREGISTERED = 451,
     ERR_NEEDMOREPARAMS = 461, //Include command name
     ERR_ALREADYREGISTERED = 462,
@@ -43,7 +44,8 @@ enum NumericReply {
     //Channel replies
     RPL_NOTOPIC = 331,
     RPL_TOPIC = 332,
-    RPL_TOPICWHOTIME = 333
+    RPL_TOPICWHOTIME = 333,
+    RPL_INVITING = 341
 };
 
 struct ParsedCommand
@@ -136,6 +138,12 @@ class Server
 
         //KICK
         void handleKick(std::shared_ptr<Client>& client, const ParsedCommand& c);
+
+        //PART
+        void handlePart(std::shared_ptr<Client>& client, const ParsedCommand& c);
+
+        //INVITE
+        void handleInvite(std::shared_ptr<Client>& client, const ParsedCommand& c);
 
 		// methods - Reply/Error handling
 		void initReplyMessages();
