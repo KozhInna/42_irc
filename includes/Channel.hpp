@@ -3,6 +3,7 @@
 #include "Client.hpp"
 #include <string>
 #include <list>
+#include <ctime>
 
 class Channel {
 	public:
@@ -53,7 +54,7 @@ class Channel {
         void broadcastToChannel(const std::string& reply, Client* excludeClient = nullptr);
 
 
-	
+
 	private:
 		std::string channelName_;
 		std::string topic_;
@@ -65,7 +66,7 @@ class Channel {
 		size_t maxMembers_; // max amount of users
         std::string topicAuthor_;
         time_t topicTimestamp_;
-		
+
 		std::list<Client*> members_;
 		std::list<Client*> operators_;
 		std::list<Client*> invited_;

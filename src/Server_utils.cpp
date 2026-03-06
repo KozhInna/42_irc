@@ -7,19 +7,19 @@ ParsedCommand Server::parseMessage(const std::string& msg) {
 	ParsedCommand c;
 	std::string s = msg;
 
-    // Strip \r\n from end
-    if (!s.empty() && s[s.length() - 1] == '\n')
-        s.erase(s.length() - 1);
-    if (!s.empty() && s[s.length() - 1] == '\r')
-        s.erase(s.length() - 1);
+	// Strip \r\n from end
+	if (!s.empty() && s[s.length() - 1] == '\n')
+		s.erase(s.length() - 1);
+	if (!s.empty() && s[s.length() - 1] == '\r')
+		s.erase(s.length() - 1);
 
 	std::string temp;
 	size_t pos;
-    bool hasColumn = false;
+	bool hasColumn = false;
 
 	// first check if there is a ":" and save that to temp
 	if ((pos = s.find(':')) != std::string::npos) {
-        hasColumn = true;
+		hasColumn = true;
 		temp = s.substr(pos + 1); // removes the ":"
 		s.erase(pos);
 	}
@@ -40,7 +40,7 @@ ParsedCommand Server::parseMessage(const std::string& msg) {
 			c.params.push_back(temp);
 		return c;
 	}
-	
+
 	// then split the rest by spaces
 	while ((pos = s.find(' ')) != std::string::npos) {
 		c.params.push_back(s.substr(0, pos));
@@ -58,64 +58,72 @@ ParsedCommand Server::parseMessage(const std::string& msg) {
 	// add temp even if empty after :
 	if (hasColumn) {
 		c.params.push_back(temp);
-    }
+	}
 	return c;
 }
 
 void Server::checkCommand(std::shared_ptr<Client>& client, const ParsedCommand& c) {
-    if (c.cmd == "CAP") { handleCap(client, c); }   
-    else if (c.cmd == "PING") { handlePing(client, c); } 
-    else if (c.cmd == "USER") handleUser(client, c.params[0], c.params[3], c.params.size());
-    else if (c.cmd == "NICK") handleNick(client, c);
-    else if (c.cmd == "PASS") handlePass(client, c);
-    else if (c.cmd == "QUIT") handleQuit(client, c);
-    
+	if (c.cmd == "CAP") { handleCap(client, c); }
+	else if (c.cmd == "PING") { handlePing(client, c); }
+	else if (c.cmd == "USER") handleUser(client, c.params[0], c.params[3], c.params.size());
+	else if (c.cmd == "NICK") handleNick(client, c);
+	else if (c.cmd == "PASS") handlePass(client, c);
+	else if (c.cmd == "QUIT") handleQuit(client, c);
 
-    // Commands that require registration
-    else if (requiresRegistration(c.cmd)) {
-        if (!client->getRegistered()) {
-            sendNumericReply(client, ERR_NOTREGISTERED, ""); 
-            return;
-        }
-        // Route to appropriate handler
-        if (c.cmd == "JOIN") handleJoin(client, c);
-        else if (c.cmd == "PART") handlePart(client, c);
-        else if (c.cmd == "PRIVMSG") handlePrivmsg(client, c);
-        else if (c.cmd == "KICK") handleKick(client, c);
-        else if (c.cmd == "INVITE") handleInvite(client, c);
-        else if (c.cmd == "TOPIC") handleTopic(client, c);
-        //else if (c.cmd == "MODE") handleMode(client, c);
-    } else {
-        sendNumericReply(client, ERR_UNKNOWNCOMMAND, c.cmd); 
-    }
+
+	// Commands that require registration
+	else if (requiresRegistration(c.cmd)) {
+		if (!client->getRegistered()) {
+			sendNumericReply(client, ERR_NOTREGISTERED, "");
+			return;
+		}
+		// Route to appropriate handler
+		if (c.cmd == "JOIN") handleJoin(client, c);
+		else if (c.cmd == "PART") handlePart(client, c);
+		else if (c.cmd == "PRIVMSG") handlePrivmsg(client, c);
+		else if (c.cmd == "KICK") handleKick(client, c);
+		else if (c.cmd == "INVITE") handleInvite(client, c);
+		else if (c.cmd == "TOPIC") handleTopic(client, c);
+		//else if (c.cmd == "MODE") handleMode(client, c);
+	} else {
+		sendNumericReply(client, ERR_UNKNOWNCOMMAND, c.cmd);
+	}
 }
 
 bool Server::requiresRegistration(const std::string& cmd) {
-    return (cmd == "JOIN" || cmd == "PART" || cmd == "PRIVMSG" || 
-            cmd == "KICK" || cmd == "INVITE" || cmd == "TOPIC" || 
-            cmd == "MODE");
+	return (cmd == "JOIN" || cmd == "PART" || cmd == "PRIVMSG" ||
+			cmd == "KICK" || cmd == "INVITE" || cmd == "TOPIC" ||
+			cmd == "MODE");
 }
 
 void Server::broadcastQuitAndCleanup(Client* client_ptr, const std::string& quitReason) {
-    for (const auto& [key, channel] : channels_) {
-            if (channel->isMember(client_ptr)) {
-                channel->removeMember(client_ptr);
-                if (channel->isOperator(client_ptr)) {
-                    channel->removeOperator(client_ptr);
-                }
-                channel->broadcastToChannel(quitReason);
-            } else {
-                if (channel->isInvited(client_ptr)) {
-                    channel->removeInvited(client_ptr);
-                }
-            }
-    }
+	for (auto it = channels_.begin(); it != channels_.end(); ) {
+		const auto& channel = it->second;
+		if (channel->isMember(client_ptr)) {
+			channel->removeMember(client_ptr);
+			if (channel->isOperator(client_ptr)) {
+				channel->removeOperator(client_ptr);
+			}
+			channel->broadcastToChannel(quitReason);
+		} else {
+			if (channel->isInvited(client_ptr)) {
+				channel->removeInvited(client_ptr);
+			}
+		}
+
+		//Delete channel if empty after member removal
+		if (channel->getNumberMembers() == 0) {
+			it = channels_.erase(it);
+		} else {
+			++it;
+		}
+	}
 }
 std::shared_ptr<Client> Server::getClientByNick(const std::string& nick) {
-    for (auto [key, c] : clients_) {
-        if (c->getNickName() == nick) {
-            return c;
-        }
-    }
-    return nullptr;
+	for (auto [key, c] : clients_) {
+		if (c->getNickName() == nick) {
+			return c;
+		}
+	}
+	return nullptr;
 }
