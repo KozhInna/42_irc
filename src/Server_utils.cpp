@@ -79,10 +79,10 @@ void Server::checkCommand(std::shared_ptr<Client>& client, const ParsedCommand& 
         }
         // Route to appropriate handler
         if (c.cmd == "JOIN") handleJoin(client, c);
-        //else if (c.cmd == "PART") handlePart(client, c);
+        else if (c.cmd == "PART") handlePart(client, c);
         else if (c.cmd == "PRIVMSG") handlePrivmsg(client, c);
         else if (c.cmd == "KICK") handleKick(client, c);
-        //else if (c.cmd == "INVITE") handleInvite(client, c);
+        else if (c.cmd == "INVITE") handleInvite(client, c);
         else if (c.cmd == "TOPIC") handleTopic(client, c);
         //else if (c.cmd == "MODE") handleMode(client, c);
     } else {
