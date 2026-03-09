@@ -37,6 +37,8 @@ ParsedJoin Server::parseJoin(std::shared_ptr<Client>& client, const ParsedComman
 void Server::handleJoin(std::shared_ptr<Client>& client, const ParsedCommand& c) {
 	ParsedJoin p = parseJoin(client, c);
 
+    if (p.channel.empty()) return;
+
     if (!createChannel(p, client)) {
         std::shared_ptr<Channel> channel = findChannel(p.channel);
         Client *client_ptr = client.get();
@@ -108,15 +110,14 @@ void Server::joinReplyMessages(std::shared_ptr<Channel>& channel, std::shared_pt
         sendNumericReply(client, 332, topicExtra);
     }
 
-    // 3. Nicknames of users list (353)
-    // TODO: split 353 into multiple messages if users list exceeds ~400 chars
+    // 3. Nicknames of users list
     std::string users = channel->getMembersList();
     std::string extra = "= " + channelName + " :" + users;
-    sendNumericReply(client, 353, extra);
+    sendNumericReply(client, RPL_NAMREPLY, extra);
 
     // 4. End of names
     extra = channelName + " :End of /NAMES list";
-    sendNumericReply(client, 366, extra);
+    sendNumericReply(client, RPL_ENDOFNAMES, extra);
 }
 
 std::string Server::formatClientAction(std::shared_ptr<Client>& client, const std::string& command,
