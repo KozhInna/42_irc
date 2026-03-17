@@ -45,7 +45,9 @@ enum NumericReply {
     RPL_NOTOPIC = 331,
     RPL_TOPIC = 332,
     RPL_TOPICWHOTIME = 333,
-    RPL_INVITING = 341
+    RPL_INVITING = 341,
+    RPL_NAMREPLY = 353,
+    RPL_ENDOFNAMES = 366
 };
 
 struct ParsedCommand
@@ -106,7 +108,7 @@ class Server
         void disconnectClient(int fd);
 
 		// methods - message processing
-		void readMsgFromClient(std::shared_ptr<Client> client);
+		bool readMsgFromClient(std::shared_ptr<Client> client);
 		void processMessage(std::shared_ptr<Client>& client, const std::string& msg);
 		ParsedCommand parseMessage(const std::string& msg);
         void sendWelcome(std::shared_ptr<Client>& client);
