@@ -14,10 +14,10 @@ class Client {
         void setPassAccepted(bool v) { passAccepted_ = v; }
 
 		// TODO; move the functions inside the client folders
-		const std::string& getNickName() { return nickName_; }
-		const std::string& getUserName() { return userName_; }
-		const std::string& getRealName() { return realName_; }
-		const std::string& getHostName() { return hostname_; }
+		const std::string& getNickName() const { return nickName_; }
+		const std::string& getUserName() const { return userName_; }
+		const std::string& getRealName() const { return realName_; }
+		const std::string& getHostName() const { return hostname_; }
 
 		void setNickName(const std::string& nick) { nickName_ = nick; }
 		void setUserName(const std::string& user) { userName_ = user; }

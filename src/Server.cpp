@@ -87,16 +87,24 @@ void Server::run() {
 		if (pollFds[0].revents & POLLIN) {
 			std::shared_ptr<Client> client = acceptNewClient();
 			if (client) {
-				pollFds[nPollFds].fd = client->getFd();
-				pollFds[nPollFds].events = POLLIN;
-				nPollFds++;
+                if (nPollFds >= MAX_CLIENTS) {
+                    std::string msg = "ERROR :Server is full\r\n";
+                    send(client->getFd(), msg.c_str(), msg.length(), 0);
+                    close(client->getFd());
+                    clients_.erase(client->getFd());
+                } else {
+                    pollFds[nPollFds].fd = client->getFd();
+                    pollFds[nPollFds].events = POLLIN;
+                    nPollFds++;
+                }
 			}
 		}
 		for (int i = 1; i < nPollFds; i++) {
 			if (pollFds[i].revents & POLLIN) {
 				auto it = clients_.find(pollFds[i].fd);
 				if (it != clients_.end()){
-					readMsgFromClient(it->second);
+					bool disconnected = readMsgFromClient(it->second);
+                    if (disconnected) i--;
 				}
 			} else if (pollFds[i].revents & (POLLHUP | POLLERR)) {
                 auto it = clients_.find(pollFds[i].fd);
@@ -104,6 +112,7 @@ void Server::run() {
                     std::string reply = formatClientAction(it->second, "QUIT", " :Connection lost");
                     broadcastQuitAndCleanup(it->second.get(), reply);
                     disconnectClient(pollFds[i].fd);
+                    i--;
                 }
             }
 		}
@@ -123,7 +132,7 @@ std::shared_ptr<Client> Server::acceptNewClient() {
 		std::cerr << "Error: accept() failed: " << strerror(errno) << std::endl;
 		return nullptr;
 	}
-
+    
 	char hostname[INET_ADDRSTRLEN];
 	inet_ntop(AF_INET, &(clientSock.sin_addr), hostname, INET_ADDRSTRLEN);
 
@@ -141,27 +150,45 @@ void Server::processMessage(std::shared_ptr<Client>& client, const std::string& 
 //	std::cout << "command: " << c.cmd << " " << c.cmd.length() << std::endl;
 //	for (auto i : c.params)
 //		std::cout << "vector strings: " << i << " " << i.length() << std::endl;
-	(void)client;
 }
 
-void Server::readMsgFromClient(std::shared_ptr<Client> client) {
+// Reads data from client socket into per-client buffer, then processes complete messages.
+// Returns true if the client was disconnected (caller should adjust poll loop index).
+bool Server::readMsgFromClient(std::shared_ptr<Client> client) {
 	char tempBuf[512];
 	ssize_t bytesRead = recv(client->getFd(), tempBuf, sizeof(tempBuf), 0);
 	if (bytesRead > 0) {
-		client->getBuffer().append(tempBuf, bytesRead);
+        client->getBuffer().append(tempBuf, bytesRead);
+        // Protection against clients flooding data without newlines (no valid IRC message)
+        if (client->getBuffer().size() > 4096) {
+            disconnectClient(client->getFd());
+            return true;
+        }
 		size_t pos;
+        // Process all complete messages (delimited by \n) from the buffer
 		while ((pos = client->getBuffer().find("\n")) != std::string::npos) {
 			std::string message = client->getBuffer().substr(0, pos);
-			processMessage(client, message);
 			client->getBuffer().erase(0, pos + 1);
-		}
+			processMessage(client, message);
+            // processMessage may trigger QUIT which calls disconnectClient internally
+            if (clients_.find(client->getFd()) == clients_.end())
+                return true;
+        }
 	} else if (bytesRead == 0) {
-		std::cout << "Client disconnected gracefully" << std::endl;
+        // TCP FIN received — client closed connection gracefully (Ctrl+D (EOF))
+        std::string reply = formatClientAction(client, "QUIT", " :Connection lost");
+        broadcastQuitAndCleanup(client.get(), reply);
 		disconnectClient(client->getFd());
+        return true;
 	} else if (bytesRead == -1) {
+        // Socket error — treat as disconnect
 		std::cerr << "Error: recv() failed: " << strerror(errno) << std::endl;
-		disconnectClient(client->getFd());
+        std::string reply = formatClientAction(client, "QUIT", " :Connection error");
+        broadcastQuitAndCleanup(client.get(), reply);
+        disconnectClient(client->getFd());
+        return true;
 	}
+    return false;
 }
 
 void Server::disconnectClient(int fd) {
