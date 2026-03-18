@@ -65,7 +65,7 @@ ParsedCommand Server::parseMessage(const std::string& msg) {
 void Server::checkCommand(std::shared_ptr<Client>& client, const ParsedCommand& c) {
 	if (c.cmd == "CAP") { handleCap(client, c); }
 	else if (c.cmd == "PING") { handlePing(client, c); }
-	else if (c.cmd == "USER") handleUser(client, c.params[0], c.params[3], c.params.size());
+	else if (c.cmd == "USER") handleUser(client, c);
 	else if (c.cmd == "NICK") handleNick(client, c);
 	else if (c.cmd == "PASS") handlePass(client, c);
 	else if (c.cmd == "QUIT") handleQuit(client, c);

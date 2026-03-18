@@ -1,10 +1,13 @@
 #include "Server.hpp"
 #include <sys/socket.h>
+#include <string>
 
+void Server::handleUser(std::shared_ptr<Client>& client, const ParsedCommand& c) {
+    if (c.params.size() != 4) {
+        sendNumericReply(client, ERR_NEEDMOREPARAMS, c.cmd);
+        return;
+    }
 
-// TODO: check what includes are actually needed
-
-void Server::handleUser(std::shared_ptr<Client>& client, const std::string& username, const std::string& realname, const size_t param_size) {
     if (client->getRegistered()) {
         sendNumericReply(client, ERR_ALREADYREGISTERED, "USER");
         return;
@@ -15,16 +18,20 @@ void Server::handleUser(std::shared_ptr<Client>& client, const std::string& user
         return;
     }
 
-    if (param_size != 4) {
+    std::string username = c.params[0];
+    const std::string& realname = c.params[3];
+
+    if (username.empty()) {
         sendNumericReply(client, ERR_NEEDMOREPARAMS, "USER");
         return;
     }
-
+    if (username.size() > 12) {
+        username.erase(12);
+    }
     client->setUserName(username);
     client->setRealName(realname);
     client->setRegistered(true);
     sendWelcome(client);
-    return;
 }
 
 void Server::sendWelcome(std::shared_ptr<Client>& client) {
@@ -36,7 +43,7 @@ void Server::sendWelcome(std::shared_ptr<Client>& client) {
     sendNumericReply(client, RPL_YOURHOST, ":Your host is " + serverName_ + ", running version " + SERVER_VERSION);
     sendNumericReply(client, RPL_CREATED, ":This server was created on " + creationDate_);
     sendNumericReply(client, RPL_MYINFO, serverName_ + " " + SERVER_VERSION + " " + "o itkl");
-    sendNumericReply(client, RPL_ISUPPORT, "NETWORK=42Network NICKLEN=9 CHANMODES=itkl PREFIX=(o)@ :are supported by this server");
+    sendNumericReply(client, RPL_ISUPPORT, "NETWORK=42Network NICKLEN=9 USERLEN=12 CHANMODES=itkl PREFIX=(o)@ :are supported by this server");
     sendNumericReply(client, ERR_NOMOTD, "");
 }
 

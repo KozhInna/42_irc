@@ -117,7 +117,7 @@ class Server
 		void checkCommand(std::shared_ptr<Client>& client, const ParsedCommand& c);
 		void handlePass(std::shared_ptr<Client>& client, const ParsedCommand& c);
 		void handleNick(std::shared_ptr<Client>& client, const ParsedCommand& c);
-		void handleUser(std::shared_ptr<Client>& client, const std::string& username, const std::string& realname, const size_t param_size);
+		void handleUser(std::shared_ptr<Client>& client, const ParsedCommand& c);
         void handleQuit(std::shared_ptr<Client>& client, const ParsedCommand& c);
         bool isValidNickname(const std::string& nick);
         bool requiresRegistration(const std::string& cmd);
