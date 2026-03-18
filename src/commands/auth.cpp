@@ -1,5 +1,6 @@
 #include "Server.hpp"
 #include "Client.hpp"
+#include "Channel.hpp"
 #include <iostream>
 #include <sys/socket.h>
 
@@ -28,9 +29,9 @@ void Server::handlePass(std::shared_ptr<Client>& client, const ParsedCommand& c)
  */
 
  void Server::handleNick(std::shared_ptr<Client>& client, const ParsedCommand& c) {
-    // check is Pass is accepted
+    // check if Pass is accepted
     if (!client->getPassAccepted()) {
-        sendNumericReply(client, ERR_NOTREGISTERED, ""); //There's NO standard IRC error, so send generic
+        sendNumericReply(client, ERR_NOTREGISTERED, "");
         disconnectClient(client->getFd());
         return;
     }
@@ -43,6 +44,10 @@ void Server::handlePass(std::shared_ptr<Client>& client, const ParsedCommand& c)
 
     const std::string& nickname = c.params[0];
     //check if nick is of valid format
+    if (nickname.empty()) {
+        sendNumericReply(client, ERR_ERRONEUSNICKNAME, nickname); 
+        return;
+    }
     if (!isValidNickname(nickname)) {
         sendNumericReply(client, ERR_ERRONEUSNICKNAME, nickname); 
         return;
@@ -57,10 +62,18 @@ void Server::handlePass(std::shared_ptr<Client>& client, const ParsedCommand& c)
         } 
     }
 
-    client->setNickName(nickname);
-    //TODO: handle nickname change
-    /*     User is CHANGING nickname (already had one)
-            Notify the client and everyone in their channels */
+    if (client->getNickName().empty()) {
+        client->setNickName(nickname);
+    } else {
+        std::string reply = formatClientAction(client, "NICK", nickname);
+        send(client->getFd(), reply.c_str(), reply.length(), 0);  // notify the client themselves
+        for (auto channel : channels_) {
+            if (channel.second->isMember(client.get())) {
+                channel.second->broadcastToChannel(reply, client.get());
+            }
+        }
+        client->setNickName(nickname);
+    }
  }
 
  bool Server::isValidNickname(const std::string& nick) {
@@ -70,7 +83,7 @@ void Server::handlePass(std::shared_ptr<Client>& client, const ParsedCommand& c)
     }
         // First character: letter or special
         char first = nick[0];
-        bool firstIsLetter = std::isalpha(first);
+        bool firstIsLetter = std::isalpha((unsigned char)first);
         bool firstIsSpecial = (first >= '[' && first <= '`') || 
                               (first >= '{' && first <= '}');
         
@@ -80,8 +93,8 @@ void Server::handlePass(std::shared_ptr<Client>& client, const ParsedCommand& c)
     // Rest: letter, digit, special, or hyphen
     for (size_t i = 1; i < nick.length(); i++) {
         char c = nick[i];
-        bool isLetter = std::isalpha(c);
-        bool isDigit = std::isdigit(c);
+        bool isLetter = std::isalpha((unsigned char)c);
+        bool isDigit = std::isdigit((unsigned char)c);
         bool isSpecial = (c >= '[' && c <= '`') || 
                             (c >= '{' && c <= '}');
         bool isHyphen = (c == '-');
