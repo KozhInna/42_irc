@@ -3,11 +3,37 @@
 #include <string>
 #include <unistd.h>
 
+
+bool isValidPort(const std::string& str) {
+    
+    for (size_t i = 0; i < str.length(); i++) {
+        if (!isdigit(str[i]))
+            return false;
+    }
+    
+    try {
+        int port = std::stoi(str);
+        if (port < 1024 || port > 65535)
+            return false;
+    
+    } 
+    catch (const std::exception& e) {
+        return false;
+    }
+
+    return true;
+}
+
+
 int main(int argc, char **argv)
 {
     if (argc != 3)
     {
         std::cerr << "Usage: ./ircserv <port> <password>" << std::endl;
+        return 1;
+    }
+    if (!isValidPort(argv[1])) {
+        std::cerr << "Error: Invalid port number. Port must be an integer between 1024 and 65535." << std::endl;
         return 1;
     }
 
