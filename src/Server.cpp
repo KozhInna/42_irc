@@ -79,7 +79,7 @@ void Server::start()
 
 void Server::run() {
 	while (true) {
-		int res = poll(pollFds, nPollFds, -1);
+		int res = poll(pollFds, nPollFds, 30000); //30s
 		if (res == -1) {
 			std::cerr << "Error: poll() failed: " << strerror(errno) << std::endl;
 			continue;
@@ -116,7 +116,40 @@ void Server::run() {
                 }
             }
 		}
-	}
+        checkIdleClients();
+    }
+}
+
+void Server::checkIdleClients() {
+    time_t now = time(nullptr);
+
+    for (auto it = clients_.begin(); it != clients_.end(); ) {
+        std::shared_ptr<Client>& client = it->second;
+        int fd = it->first;
+        if (!client->getRegistered() && now - client->getConnectedAt() > REG_TIMEOUT) {
+            std::string msg = "ERROR :Registration timeout\r\n";
+            send(fd, msg.c_str(), msg.length(), 0);
+            disconnectClient(fd);
+            it = clients_.begin();
+            continue;
+        }
+        if (!client->getPingSent() && now - client->getLastActivity() > IDLE_TIMEOUT) {
+            std::string ping = "PING :" + serverName_ + "\r\n";
+            send(fd, ping.c_str(), ping.length(), 0);
+            client->setPingSent(true);
+            ++it;
+        }
+        else if (client->getPingSent() && now - client->getLastActivity() > PONG_TIMEOUT + IDLE_TIMEOUT) {
+            std::string error = "ERROR :Ping timeout\r\n";
+            send(fd, error.c_str(), error.length(), 0);
+            std::string msg = formatClientAction(client, "QUIT", ":Ping timeout");
+            broadcastQuitAndCleanup(client.get(), msg);
+            disconnectClient(fd);
+            it = clients_.begin();
+        } else {
+            ++it;
+        }
+    }
 }
 
 // Called after poll() signals activity on listenFd_.
@@ -156,6 +189,7 @@ bool Server::readMsgFromClient(std::shared_ptr<Client> client) {
 	char tempBuf[512];
 	ssize_t bytesRead = recv(client->getFd(), tempBuf, sizeof(tempBuf), 0);
 	if (bytesRead > 0) {
+        client->setLastActivity_(time(nullptr));
         client->getBuffer().append(tempBuf, bytesRead);
         // Protection against clients flooding data without newlines (no valid IRC message)
         if (client->getBuffer().size() > 4096) {
@@ -245,7 +279,7 @@ std::string Server::formatNumericReply(int code, const std::string& target, cons
     if (!extra.empty()) {
         ss << extra;
         if (hasStaticMsg)
-            ss << " ";  // ← only add space if static message follows!
+            ss << " ";
     }
 
 	ss << (hasStaticMsg ? replyMessages_[code] : "") << "\r\n";
