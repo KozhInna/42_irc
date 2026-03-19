@@ -5,14 +5,10 @@
 #include <sys/socket.h>
 
 
-// so first we handle just joining a one channel, optionally with password
-// also we handle join 0
-//TODO: fix parsing to allow only "JOIN #chan1 pass" 
-//TODO: (now i can enter smth like "JOIN JOIN JOIN JOIN" or "JOIN #cnan1 #cnan1")
-//TODO: validate key if provided (If the value is invalid, they SHOULD return ERR_INVALIDMODEPARAM)
-//TODO: handle error - no channel name (JOIN)
+// we handle joining to a channel, optionally with password
 ParsedJoin Server::parseJoin(std::shared_ptr<Client>& client, const ParsedCommand& c) {
 	ParsedJoin p {.channel = "", .password = ""};
+	size_t pos = 0;
 
 	// if no parameters then cancel
 	if (c.params.empty()) {
@@ -22,20 +18,35 @@ ParsedJoin Server::parseJoin(std::shared_ptr<Client>& client, const ParsedComman
 
 	p.channel = c.params[0];
 
-	// we got 0, and no other params, return
-	if (p.channel == "0") {
-		// leave all channels
+	// trump everything after ','
+	if ((pos = p.channel.find(',')) != std::string::npos) {
+		p.channel = p.channel.substr(0, pos);
+	}
+
+	// channe must start with '#' and must have something after '#'
+	if (p.channel.empty() || p.channel[0] != '#' || p.channel.length() == 1) {
+		sendNumericReply(client, ERR_NOSUCHCHANNEL, c.cmd);
+		p.channel = "";
 		return p;
 	}
 	
 	// we return channel and password, the password maybe empty
 	if (c.params.size() >= 2)
 		p.password = c.params[1];
+
+	// trump everything after ','
+	if ((pos = p.password.find(',')) != std::string::npos) {
+		p.password = p.password.substr(0, pos);
+	}
+
 	return p;
 }
 
 void Server::handleJoin(std::shared_ptr<Client>& client, const ParsedCommand& c) {
 	ParsedJoin p = parseJoin(client, c);
+
+	if (p.channel.empty())
+		return ;
 
     if (!createChannel(p, client)) {
         std::shared_ptr<Channel> channel = findChannel(p.channel);
@@ -108,15 +119,14 @@ void Server::joinReplyMessages(std::shared_ptr<Channel>& channel, std::shared_pt
         sendNumericReply(client, 332, topicExtra);
     }
 
-    // 3. Nicknames of users list (353)
-    // TODO: split 353 into multiple messages if users list exceeds ~400 chars
+    // 3. Nicknames of users list
     std::string users = channel->getMembersList();
     std::string extra = "= " + channelName + " :" + users;
-    sendNumericReply(client, 353, extra);
+    sendNumericReply(client, RPL_NAMREPLY, extra);
 
     // 4. End of names
     extra = channelName + " :End of /NAMES list";
-    sendNumericReply(client, 366, extra);
+    sendNumericReply(client, RPL_ENDOFNAMES, extra);
 }
 
 std::string Server::formatClientAction(std::shared_ptr<Client>& client, const std::string& command,

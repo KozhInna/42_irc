@@ -49,6 +49,8 @@ enum NumericReply {
     RPL_TOPICWHOTIME = 333,
     RPL_INVITING = 341,
     RPL_CHANNELMODEIS = 324
+    RPL_NAMREPLY = 353,
+    RPL_ENDOFNAMES = 366
 };
 
 struct ParsedCommand
@@ -109,7 +111,7 @@ class Server
         void disconnectClient(int fd);
 
 		// methods - message processing
-		void readMsgFromClient(std::shared_ptr<Client> client);
+		bool readMsgFromClient(std::shared_ptr<Client> client);
 		void processMessage(std::shared_ptr<Client>& client, const std::string& msg);
 		ParsedCommand parseMessage(const std::string& msg);
         void sendWelcome(std::shared_ptr<Client>& client);
@@ -118,7 +120,7 @@ class Server
 		void checkCommand(std::shared_ptr<Client>& client, const ParsedCommand& c);
 		void handlePass(std::shared_ptr<Client>& client, const ParsedCommand& c);
 		void handleNick(std::shared_ptr<Client>& client, const ParsedCommand& c);
-		void handleUser(std::shared_ptr<Client>& client, const std::string& username, const std::string& realname, const size_t param_size);
+		void handleUser(std::shared_ptr<Client>& client, const ParsedCommand& c);
         void handleQuit(std::shared_ptr<Client>& client, const ParsedCommand& c);
         bool isValidNickname(const std::string& nick);
         bool requiresRegistration(const std::string& cmd);

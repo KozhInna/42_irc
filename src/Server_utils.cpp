@@ -1,7 +1,6 @@
 #include "Server.hpp"
 #include <iostream>
 
-// TODO: check what includes are actually needed
 
 ParsedCommand Server::parseMessage(const std::string& msg) {
 	ParsedCommand c;
@@ -43,7 +42,9 @@ ParsedCommand Server::parseMessage(const std::string& msg) {
 
 	// then split the rest by spaces
 	while ((pos = s.find(' ')) != std::string::npos) {
-		c.params.push_back(s.substr(0, pos));
+		if (pos != 0) {
+			c.params.push_back(s.substr(0, pos));
+		}
 		s.erase(0, pos + 1);
 	}
 
@@ -65,7 +66,7 @@ ParsedCommand Server::parseMessage(const std::string& msg) {
 void Server::checkCommand(std::shared_ptr<Client>& client, const ParsedCommand& c) {
 	if (c.cmd == "CAP") { handleCap(client, c); }
 	else if (c.cmd == "PING") { handlePing(client, c); }
-	else if (c.cmd == "USER") handleUser(client, c.params[0], c.params[3], c.params.size());
+	else if (c.cmd == "USER") handleUser(client, c);
 	else if (c.cmd == "NICK") handleNick(client, c);
 	else if (c.cmd == "PASS") handlePass(client, c);
 	else if (c.cmd == "QUIT") handleQuit(client, c);
