@@ -5,12 +5,7 @@
 #include <sys/socket.h>
 
 
-// so first we handle just joining a one channel, optionally with password
-// also we handle join 0
-//TODO: fix parsing to allow only "JOIN #chan1 pass" 
-//TODO: (now i can enter smth like "JOIN JOIN JOIN JOIN" or "JOIN #cnan1 #cnan1")
-//TODO: validate key if provided (If the value is invalid, they SHOULD return ERR_INVALIDMODEPARAM)
-//TODO: handle error - no channel name (JOIN)
+// we handle joining to a channel, optionally with password
 ParsedJoin Server::parseJoin(std::shared_ptr<Client>& client, const ParsedCommand& c) {
 	ParsedJoin p {.channel = "", .password = ""};
 	size_t pos = 0;

@@ -3,7 +3,7 @@
 #include <string>
 #include <unistd.h>
 
-
+// validate the port number, has to be integer between 1024 to 65535
 bool isValidPort(const std::string& str) {
     
     for (size_t i = 0; i < str.length(); i++) {
@@ -33,7 +33,7 @@ int main(int argc, char **argv)
         return 1;
     }
     if (!isValidPort(argv[1])) {
-        std::cerr << "Error: Invalid port number. Port must be an integer between 1024 and 65535." << std::endl;
+        std::cerr << "Error: Invalid port number. Port must be an value between 1024 and 65535." << std::endl;
         return 1;
     }
 
