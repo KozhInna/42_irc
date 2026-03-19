@@ -84,7 +84,7 @@ void Server::checkCommand(std::shared_ptr<Client>& client, const ParsedCommand& 
 		else if (c.cmd == "KICK") handleKick(client, c);
 		else if (c.cmd == "INVITE") handleInvite(client, c);
 		else if (c.cmd == "TOPIC") handleTopic(client, c);
-		//else if (c.cmd == "MODE") handleMode(client, c);
+		else if (c.cmd == "MODE") handleMode(client, c);
 	} else {
 		sendNumericReply(client, ERR_UNKNOWNCOMMAND, c.cmd);
 	}
