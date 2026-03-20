@@ -27,9 +27,9 @@ class Channel {
 		bool hasPassword() const { return hasPassword_; };
 		bool hasLimit() const { return limitMembers_; };
 
-		const std::string& getChannelName() { return channelName_; };
-		const std::string& getTopic() { return topic_; };
-		const std::string& getPassword() { return password_; };
+		const std::string& getChannelName() const { return channelName_; };
+		const std::string& getTopic() const { return topic_; };
+		const std::string& getPassword() const { return password_; };
 		size_t getMaxMembers() const { return maxMembers_; };
         std::list<Client*> getMembers() const { return members_; };
         const std::string& getTopicAuthor() const { return topicAuthor_; };
