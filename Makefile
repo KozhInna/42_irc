@@ -9,7 +9,7 @@ SRCDIR := src
 SRCS := $(SRCDIR)/main.cpp $(SRCDIR)/Server.cpp $(SRCDIR)/Client.cpp $(SRCDIR)/commands/channel_join.cpp $(SRCDIR)/Server_utils.cpp \
 		$(SRCDIR)/commands/auth_utils.cpp $(SRCDIR)/commands/auth.cpp $(SRCDIR)/Channel.cpp $(SRCDIR)/commands/channel_topic.cpp \
 		$(SRCDIR)/commands/privmsg.cpp $(SRCDIR)/commands/channel_kick.cpp $(SRCDIR)/commands/channel_part.cpp \
-		$(SRCDIR)/commands/channel_invite.cpp
+		$(SRCDIR)/commands/channel_invite.cpp $(SRCDIR)/commands/channel_mode.cpp
 
 
 OBJDIR := obj

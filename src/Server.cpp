@@ -224,6 +224,8 @@ void Server::initReplyMessages() {
     replyMessages_[ERR_BADCHANNELKEY] = ":Cannot join channel (+k)";   // 475
     replyMessages_[ERR_CHANNELISFULL] = ":Cannot join channel (+l)";   // 471
     replyMessages_[ERR_CHANOPRIVSNEEDED] = ":You're not channel operator"; // 482
+    replyMessages_[ERR_UNKNOWNMODE] = ":is unknown mode char to me"; // 472
+    replyMessages_[ERR_KEYSET] = ":Channel key already set"; // 467
 
     // Channel replies
     replyMessages_[RPL_NOTOPIC] = ":No topic is set";

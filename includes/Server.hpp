@@ -40,12 +40,15 @@ enum NumericReply {
     ERR_INVITEONLYCHAN = 473,
     ERR_BADCHANNELKEY = 475,
     ERR_CHANOPRIVSNEEDED = 482,
+    ERR_UNKNOWNMODE = 472,
+    ERR_KEYSET = 467,
 
     //Channel replies
     RPL_NOTOPIC = 331,
     RPL_TOPIC = 332,
     RPL_TOPICWHOTIME = 333,
     RPL_INVITING = 341,
+    RPL_CHANNELMODEIS = 324
     RPL_NAMREPLY = 353,
     RPL_ENDOFNAMES = 366
 };
@@ -146,6 +149,9 @@ class Server
 
         //INVITE
         void handleInvite(std::shared_ptr<Client>& client, const ParsedCommand& c);
+
+        //MODE
+        void handleMode(std::shared_ptr<Client>& client, const ParsedCommand& c);
 
 		// methods - Reply/Error handling
 		void initReplyMessages();
