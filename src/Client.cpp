@@ -1,4 +1,5 @@
 #include "Client.hpp"
+#include <ctime>
 
 //constructor
 Client::Client(int fd, const std::string& host)
