@@ -11,6 +11,11 @@
 #define MAX_CLIENTS 128
 #define SERVER_VERSION "1.0"
 
+#define PONG_TIMEOUT 120
+#define IDLE_TIMEOUT 120
+#define REG_TIMEOUT 60
+
+
 // numeric reply
 enum NumericReply {
 	// Success replies
@@ -33,7 +38,7 @@ enum NumericReply {
     ERR_NOTONCHANNEL = 442,
     ERR_USERONCHANNEL = 443,
 	ERR_NOTREGISTERED = 451,
-    ERR_NEEDMOREPARAMS = 461, //Include command name
+    ERR_NEEDMOREPARAMS = 461,
     ERR_ALREADYREGISTERED = 462,
     ERR_PASSWDMISMATCH = 464,
     ERR_CHANNELISFULL = 471,
@@ -109,6 +114,7 @@ class Server
 		//methods - connection handling
 		std::shared_ptr<Client> acceptNewClient();
         void disconnectClient(int fd);
+        void checkIdleClients();
 
 		// methods - message processing
 		bool readMsgFromClient(std::shared_ptr<Client> client);

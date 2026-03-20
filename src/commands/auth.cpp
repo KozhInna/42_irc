@@ -17,7 +17,7 @@ void Server::handlePass(std::shared_ptr<Client>& client, const ParsedCommand& c)
     const std::string& firstParam = c.params[0];
     if (firstParam != password_) {
         sendNumericReply(client, ERR_PASSWDMISMATCH, "");
-        disconnectClient(client->getFd());
+        client->setPassAccepted(false);
         return;
     }
     client->setPassAccepted(true);

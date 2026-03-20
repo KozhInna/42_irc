@@ -4,11 +4,7 @@
 #include <sys/socket.h>
 
 void Server::handlePrivmsg(std::shared_ptr<Client>& client, const ParsedCommand& c) {
-    for (auto it : c.params) {
-        std::cout << it << std::endl;
-    }
-
-    if (c.params.size() < 2) {
+    if (c.params.size() < 2 || c.params[0].empty()) {
         sendNumericReply(client, ERR_NEEDMOREPARAMS, "PRIVMSG");
         return;
     }

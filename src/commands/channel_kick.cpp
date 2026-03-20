@@ -49,4 +49,8 @@ void Server::handleKick(std::shared_ptr<Client>& client, const ParsedCommand& c)
     //remove target-user from channel
     channel->removeMember(targetClient.get());
     channel->removeOperator(targetClient.get());
+
+    if (channel->getNumberMembers() == 0) {
+        channels_.erase(channelName);
+    }
 }

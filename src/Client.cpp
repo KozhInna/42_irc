@@ -5,7 +5,10 @@ Client::Client(int fd, const std::string& host)
 	:	fd_(fd),
 		hostname_(host),
 		passAccepted_(false),
-		registered_(false) {}
+		registered_(false),
+        lastActivity_(time(nullptr)),
+        pingSent_(false),
+        connectedAt_(time(nullptr)) {}
 
 //destructor
 Client::~Client() {}
