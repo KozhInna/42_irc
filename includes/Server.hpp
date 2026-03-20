@@ -165,4 +165,6 @@ class Server
 		void sendNumericReply(std::shared_ptr<Client>& client, int code, const std::string& param = "");
         void handleCap(std::shared_ptr<Client>& client, const ParsedCommand& c);
         void handlePing(std::shared_ptr<Client>& client, const ParsedCommand& c);
+        void handlePong(std::shared_ptr<Client>& client, const ParsedCommand& c);
+
 };

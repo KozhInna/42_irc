@@ -66,3 +66,9 @@ void Server::handlePing(std::shared_ptr<Client>& client, const ParsedCommand& c)
     std::string pong = ":" + serverName_ + " PONG " + serverName_ + " :" + token + "\r\n";
     send(client->getFd(), pong.c_str(), pong.length(), 0);
 }
+
+void Server::handlePong(std::shared_ptr<Client>& client, const ParsedCommand& c) {
+    (void)c;
+    client->setLastActivity_(time(nullptr));
+    client->setPingSent(false);
+}
