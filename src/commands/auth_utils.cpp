@@ -72,3 +72,34 @@ void Server::handlePong(std::shared_ptr<Client>& client, const ParsedCommand& c)
     client->setLastActivity_(time(nullptr));
     client->setPingSent(false);
 }
+
+void Server::handleWho(std::shared_ptr<Client>& client, const ParsedCommand& c) {
+    if (c.params.empty() || c.params[0].empty()) {
+        sendNumericReply(client, RPL_ENDOFWHO, "* :End of /WHO list");
+        return;
+    }
+
+    std::string target = c.params[0];
+    std::shared_ptr<Channel> channel = findChannel(target);
+
+    if (channel) {
+        for (Client* member : channel->getMembers()) {
+            std::string prefix = channel->isOperator(member) ? "@" : "";
+            std::string extra = target + " " + member->getUserName() + " " +
+                                member->getHostName() + " " + serverName_ + " " +
+                                member->getNickName() + " H" + prefix + " :0 " +
+                                member->getRealName();
+            sendNumericReply(client, RPL_WHOREPLY, extra);
+        }
+    } else {
+        std::shared_ptr<Client> target_client = getClientByNick(target);
+        if (target_client) {
+            std::string extra = "* " + target_client->getUserName() + " " +
+                                target_client->getHostName() + " " + serverName_ + " " +
+                                target_client->getNickName() + " H :0 " +
+                                target_client->getRealName();
+            sendNumericReply(client, RPL_WHOREPLY, extra);
+        }
+    }
+    sendNumericReply(client, RPL_ENDOFWHO, target + " :End of /WHO list");
+}

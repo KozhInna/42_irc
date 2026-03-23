@@ -1,6 +1,4 @@
 #include "Server.hpp"
-#include <iostream>
-
 
 ParsedCommand Server::parseMessage(const std::string& msg) {
 	ParsedCommand c;
@@ -87,6 +85,7 @@ void Server::checkCommand(std::shared_ptr<Client>& client, const ParsedCommand& 
 		else if (c.cmd == "INVITE") handleInvite(client, c);
 		else if (c.cmd == "TOPIC") handleTopic(client, c);
 		else if (c.cmd == "MODE") handleMode(client, c);
+		else if (c.cmd == "WHO") handleWho(client, c);
 	} else {
 		sendNumericReply(client, ERR_UNKNOWNCOMMAND, c.cmd);
 	}
@@ -95,7 +94,7 @@ void Server::checkCommand(std::shared_ptr<Client>& client, const ParsedCommand& 
 bool Server::requiresRegistration(const std::string& cmd) {
 	return (cmd == "JOIN" || cmd == "PART" || cmd == "PRIVMSG" ||
 			cmd == "KICK" || cmd == "INVITE" || cmd == "TOPIC" ||
-			cmd == "MODE");
+			cmd == "MODE" || cmd == "WHO");
 }
 
 void Server::broadcastQuitAndCleanup(Client* client_ptr, const std::string& quitReason) {

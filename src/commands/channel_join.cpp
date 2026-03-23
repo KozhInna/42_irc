@@ -1,8 +1,6 @@
 #include "Channel.hpp"
 #include "Server.hpp"
 #include <string>
-#include <iostream>
-#include <sys/socket.h>
 
 
 // we handle joining to a channel, optionally with password
@@ -25,7 +23,7 @@ ParsedJoin Server::parseJoin(std::shared_ptr<Client>& client, const ParsedComman
 
 	// channe must start with '#' and must have something after '#'
 	if (p.channel.empty() || p.channel[0] != '#' || p.channel.length() == 1) {
-		sendNumericReply(client, ERR_NOSUCHCHANNEL, c.cmd);
+		sendNumericReply(client, ERR_NOSUCHCHANNEL, p.channel);
 		p.channel = "";
 		return p;
 	}

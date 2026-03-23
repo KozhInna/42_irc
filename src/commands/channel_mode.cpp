@@ -1,10 +1,13 @@
 #include "Channel.hpp"
 #include "Server.hpp"
-#include <iostream>
 
 void Server::handleMode(std::shared_ptr<Client>& client, const ParsedCommand& c) {
     if (c.params.empty()) {
         sendNumericReply(client, ERR_NEEDMOREPARAMS, "MODE");
+        return;
+    }
+    std::string target = c.params[0];
+    if (target[0] != '#') {
         return;
     }
 
@@ -39,6 +42,12 @@ void Server::handleMode(std::shared_ptr<Client>& client, const ParsedCommand& c)
         
         std::string reply = channelName + " " + modes + params;
         sendNumericReply(client, RPL_CHANNELMODEIS, reply);
+        return;
+    }
+
+    // Ban list query: MODE #channel b (allowed for all members)
+    if (c.params.size() == 2 && c.params[1] == "b") {
+        sendNumericReply(client, RPL_ENDOFBANLIST, channelName + " :End of channel ban list");
         return;
     }
 
