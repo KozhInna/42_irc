@@ -29,7 +29,7 @@ class Client {
         void setPingSent(bool pingSent) { pingSent_ = pingSent; }
         void setLastActivity_(time_t lastActivityTime) { lastActivity_ = lastActivityTime; }
 
-        std::string& getBuffer();
+        std::string& getReadBuffer();
 
 
     private:
@@ -40,7 +40,7 @@ class Client {
 		std::string hostname_;
         bool passAccepted_; // PASS cmd sent successfully
         bool registered_; // PASS + NICK + USER sent
-        std::string buffer_;
+        std::string readBuffer_;
         time_t lastActivity_;
         bool pingSent_;
         time_t connectedAt_;

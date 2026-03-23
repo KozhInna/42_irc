@@ -26,6 +26,6 @@ bool Client::getRegistered() const {
     return registered_;
 }
 
-std::string& Client::getBuffer() {
-    return buffer_;
+std::string& Client::getReadBuffer() {
+    return readBuffer_;
 }

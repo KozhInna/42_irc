@@ -190,17 +190,17 @@ bool Server::readMsgFromClient(std::shared_ptr<Client> client) {
 	ssize_t bytesRead = recv(client->getFd(), tempBuf, sizeof(tempBuf), 0);
 	if (bytesRead > 0) {
         client->setLastActivity_(time(nullptr));
-        client->getBuffer().append(tempBuf, bytesRead);
+        client->getReadBuffer().append(tempBuf, bytesRead);
         // Protection against clients flooding data without newlines (no valid IRC message)
-        if (client->getBuffer().size() > 4096) {
+        if (client->getReadBuffer().size() > 4096) {
             disconnectClient(client->getFd());
             return true;
         }
 		size_t pos;
         // Process all complete messages (delimited by \n) from the buffer
-		while ((pos = client->getBuffer().find("\n")) != std::string::npos) {
-			std::string message = client->getBuffer().substr(0, pos);
-			client->getBuffer().erase(0, pos + 1);
+		while ((pos = client->getReadBuffer().find("\n")) != std::string::npos) {
+			std::string message = client->getReadBuffer().substr(0, pos);
+			client->getReadBuffer().erase(0, pos + 1);
 			processMessage(client, message);
             // processMessage may trigger QUIT which calls disconnectClient internally
             if (clients_.find(client->getFd()) == clients_.end())
