@@ -53,9 +53,12 @@ enum NumericReply {
     RPL_TOPIC = 332,
     RPL_TOPICWHOTIME = 333,
     RPL_INVITING = 341,
-    RPL_CHANNELMODEIS = 324
+    RPL_CHANNELMODEIS = 324,
     RPL_NAMREPLY = 353,
-    RPL_ENDOFNAMES = 366
+    RPL_ENDOFNAMES = 366,
+    RPL_WHOREPLY = 352,
+    RPL_ENDOFWHO = 315,
+    RPL_ENDOFBANLIST = 368
 };
 
 struct ParsedCommand
@@ -166,5 +169,6 @@ class Server
         void handleCap(std::shared_ptr<Client>& client, const ParsedCommand& c);
         void handlePing(std::shared_ptr<Client>& client, const ParsedCommand& c);
         void handlePong(std::shared_ptr<Client>& client, const ParsedCommand& c);
+        void handleWho(std::shared_ptr<Client>& client, const ParsedCommand& c);
 
 };
