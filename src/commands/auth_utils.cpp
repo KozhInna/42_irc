@@ -56,7 +56,7 @@ void Server::handleCap(std::shared_ptr<Client>& client, const ParsedCommand& c) 
         // Empty list = "I support nothing"
         // This tells irssi "ok, no caps, continue registration"
         std::string msg = ":" + serverName_ + " CAP * LS :\r\n";
-        send(client->getFd(), msg.c_str(), msg.length(), 0);
+        queueMessage(client, msg);
     }
 }
 
@@ -64,7 +64,7 @@ void Server::handlePing(std::shared_ptr<Client>& client, const ParsedCommand& c)
     client->setLastActivity_(time(nullptr));
     std::string token = c.params.empty() ? serverName_ : c.params[0];
     std::string pong = ":" + serverName_ + " PONG " + serverName_ + " :" + token + "\r\n";
-    send(client->getFd(), pong.c_str(), pong.length(), 0);
+    queueMessage(client, pong);
 }
 
 void Server::handlePong(std::shared_ptr<Client>& client, const ParsedCommand& c) {

@@ -41,7 +41,6 @@ void Server::handleInvite(std::shared_ptr<Client>& client, const ParsedCommand& 
     channel->addInvited(targetClient.get());
 
     std::string inviteMsg = formatClientAction(client, "INVITE", targetNick + " :" + channelName);
-    send(targetClient->getFd(), inviteMsg.c_str(), inviteMsg.length(), 0);
-
+    queueMessage(targetClient, inviteMsg);
     sendNumericReply(client, RPL_INVITING, targetNick + " " + channelName);
 }

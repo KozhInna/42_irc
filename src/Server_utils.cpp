@@ -1,4 +1,5 @@
 #include "Server.hpp"
+#include "Client.hpp"
 
 ParsedCommand Server::parseMessage(const std::string& msg) {
 	ParsedCommand c;
@@ -105,7 +106,7 @@ void Server::broadcastQuitAndCleanup(Client* client_ptr, const std::string& quit
 			if (channel->isOperator(client_ptr)) {
 				channel->removeOperator(client_ptr);
 			}
-			channel->broadcastToChannel(quitReason);
+			broadcastToChannel(channel.get(), quitReason);
 		} else {
 			if (channel->isInvited(client_ptr)) {
 				channel->removeInvited(client_ptr);
@@ -127,4 +128,28 @@ std::shared_ptr<Client> Server::getClientByNick(const std::string& nick) {
 		}
 	}
 	return nullptr;
+}
+
+void Server::queueMessage(std::shared_ptr<Client>& client, const std::string& msg) {
+    if (client->getWriteBuffer().size() + msg.size() > MAX_OUT_BUFFER) {
+        disconnectClient(client->getFd());
+        return;
+    }
+    client->getWriteBuffer() += msg;
+    for (int i = 1; i < nPollFds; i++) {
+        if (pollFds[i].fd == client->getFd()) {
+            pollFds[i].events |= POLLOUT;
+            break;
+        }
+    }
+}
+
+void Server::broadcastToChannel(Channel* channel, const std::string& reply, Client* excludeClient) {
+    for (auto* member : channel->getMembers()) {
+        if (excludeClient && member == excludeClient)
+            continue;
+        auto it = clients_.find(member->getFd());
+        if (it != clients_.end())
+            queueMessage(it->second, reply);
+    }
 }

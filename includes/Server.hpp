@@ -5,7 +5,7 @@
 #include <vector>
 #include <string>
 #include <unordered_map>
-#include <memory> //for smart pointers
+#include <memory>
 #include <poll.h>
 
 #define MAX_CLIENTS 128
@@ -113,6 +113,7 @@ class Server
 
 		//reply messages map
 		std::unordered_map<int, std::string> replyMessages_;
+        void queueMessage(std::shared_ptr<Client>& client, const std::string& msg);
 
 		//methods - connection handling
 		std::shared_ptr<Client> acceptNewClient();
@@ -170,5 +171,5 @@ class Server
         void handlePing(std::shared_ptr<Client>& client, const ParsedCommand& c);
         void handlePong(std::shared_ptr<Client>& client, const ParsedCommand& c);
         void handleWho(std::shared_ptr<Client>& client, const ParsedCommand& c);
-
+        void broadcastToChannel(Channel* channel, const std::string& reply, Client* excludeClient = nullptr);
 };

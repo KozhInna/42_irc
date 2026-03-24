@@ -23,11 +23,6 @@ void Server::handlePass(std::shared_ptr<Client>& client, const ParsedCommand& c)
     client->setPassAccepted(true);
 }
 
-/* 
-    PASS secret123 extraParam
-    - most IRC servers are forgiving and only take the first word
- */
-
  void Server::handleNick(std::shared_ptr<Client>& client, const ParsedCommand& c) {
     // check if Pass is accepted
     if (!client->getPassAccepted()) {
@@ -66,10 +61,10 @@ void Server::handlePass(std::shared_ptr<Client>& client, const ParsedCommand& c)
         client->setNickName(nickname);
     } else {
         std::string reply = formatClientAction(client, "NICK", nickname);
-        send(client->getFd(), reply.c_str(), reply.length(), 0);  // notify the client themselves
+        queueMessage(client, reply);
         for (auto channel : channels_) {
             if (channel.second->isMember(client.get())) {
-                channel.second->broadcastToChannel(reply, client.get());
+                broadcastToChannel(channel.second.get(), reply, client.get());
             }
         }
         client->setNickName(nickname);

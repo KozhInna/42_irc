@@ -29,3 +29,7 @@ bool Client::getRegistered() const {
 std::string& Client::getReadBuffer() {
     return readBuffer_;
 }
+
+std::string& Client::getWriteBuffer() {
+    return writeBuffer_;
+}
