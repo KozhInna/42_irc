@@ -26,7 +26,7 @@ void Server::handlePart(std::shared_ptr<Client>& client, const ParsedCommand& c)
     }
 
     std::string reply = formatClientAction(client, "PART", partMsg);
-    channel->broadcastToChannel(reply);
+    broadcastToChannel(channel.get(), reply);
 
     if (channel->isOperator(client.get())) {
         channel->removeOperator(client.get());

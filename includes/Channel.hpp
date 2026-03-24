@@ -21,7 +21,6 @@ class Channel {
         void setTopicTimestamp() { topicTimestamp_ = time(0); }
         void setTopic(const std::string& newTopic) { topic_ = newTopic; };
 
-
 		bool isInvitedOnly() const { return inviteOnly_; };
 		bool isRestricted() const { return restrictedTopic_; };
 		bool hasPassword() const { return hasPassword_; };
@@ -35,8 +34,6 @@ class Channel {
         const std::string& getTopicAuthor() const { return topicAuthor_; };
         time_t getTopicTimestamp() const { return topicTimestamp_; };
 
-		// so i need to check if somebody is invited, add somebody to be invited,
-		// and remove from invited?
 		bool isMember(Client* client);
 		void addMember(Client* client);
 		void removeMember(Client* client);
@@ -51,9 +48,6 @@ class Channel {
 
         std::string getMembersList();
         size_t getNumberMembers() { return members_.size(); };
-        void broadcastToChannel(const std::string& reply, Client* excludeClient = nullptr);
-
-
 
 	private:
 		std::string channelName_;
@@ -70,5 +64,4 @@ class Channel {
 		std::list<Client*> members_;
 		std::list<Client*> operators_;
 		std::list<Client*> invited_;
-		// i dont know if there are all necessary, we can remove or add as we go
 };

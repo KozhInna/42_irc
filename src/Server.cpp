@@ -104,9 +104,26 @@ void Server::run() {
 				auto it = clients_.find(pollFds[i].fd);
 				if (it != clients_.end()){
 					bool disconnected = readMsgFromClient(it->second);
-                    if (disconnected) i--;
+                    if (disconnected) { i--; continue; }
 				}
-			} else if (pollFds[i].revents & (POLLHUP | POLLERR)) {
+			}
+            if (pollFds[i].revents & POLLOUT) {
+                auto it = clients_.find(pollFds[i].fd);
+                if (it != clients_.end()) {
+                    std::string& buf = it->second->getWriteBuffer();
+                    ssize_t sent = send(pollFds[i].fd, buf.c_str(), buf.size(), 0);
+                    if (sent < 0) {
+                        // send error, disconnect client
+                        disconnectClient(pollFds[i].fd);
+                        i--;
+                    } else if (sent > 0) {
+                        buf.erase(0, sent);
+                        if (buf.empty())
+                            pollFds[i].events &= ~POLLOUT; // nothing left to send
+                    }
+                }
+            } 
+            if (pollFds[i].revents & (POLLHUP | POLLERR)) {
                 auto it = clients_.find(pollFds[i].fd);
                 if (it != clients_.end()) {
                     std::string reply = formatClientAction(it->second, "QUIT", " :Connection lost");
@@ -135,7 +152,7 @@ void Server::checkIdleClients() {
         }
         if (!client->getPingSent() && now - client->getLastActivity() > IDLE_TIMEOUT) {
             std::string ping = "PING :" + serverName_ + "\r\n";
-            send(fd, ping.c_str(), ping.length(), 0);
+            queueMessage(client, ping);
             client->setPingSent(true);
             ++it;
         }
@@ -190,17 +207,17 @@ bool Server::readMsgFromClient(std::shared_ptr<Client> client) {
 	ssize_t bytesRead = recv(client->getFd(), tempBuf, sizeof(tempBuf), 0);
 	if (bytesRead > 0) {
         client->setLastActivity_(time(nullptr));
-        client->getBuffer().append(tempBuf, bytesRead);
+        client->getReadBuffer().append(tempBuf, bytesRead);
         // Protection against clients flooding data without newlines (no valid IRC message)
-        if (client->getBuffer().size() > 4096) {
+        if (client->getReadBuffer().size() > 4096) {
             disconnectClient(client->getFd());
             return true;
         }
 		size_t pos;
         // Process all complete messages (delimited by \n) from the buffer
-		while ((pos = client->getBuffer().find("\n")) != std::string::npos) {
-			std::string message = client->getBuffer().substr(0, pos);
-			client->getBuffer().erase(0, pos + 1);
+		while ((pos = client->getReadBuffer().find("\n")) != std::string::npos) {
+			std::string message = client->getReadBuffer().substr(0, pos);
+			client->getReadBuffer().erase(0, pos + 1);
 			processMessage(client, message);
             // processMessage may trigger QUIT which calls disconnectClient internally
             if (clients_.find(client->getFd()) == clients_.end())
@@ -248,7 +265,7 @@ void Server::initReplyMessages() {
 	replyMessages_[ERR_NOTREGISTERED] = ":You have not registered";
     replyMessages_[ERR_NOMOTD] = ":MOTD File is missing";
 
-        // Channel errors
+    // Channel errors
     replyMessages_[ERR_NOSUCHNICK] = ":No such nick/channel"; // 401
     replyMessages_[ERR_NOSUCHCHANNEL] = ":No such channel"; // 403
     replyMessages_[ERR_CANNOTSENDTOCHAN] = ":Cannot send to channel"; // 404
@@ -263,7 +280,6 @@ void Server::initReplyMessages() {
 
     // Channel replies
     replyMessages_[RPL_NOTOPIC] = ":No topic is set";
-    
 }
 
 std::string Server::formatNumericReply(int code, const std::string& target, const std::string& extra) {
@@ -293,7 +309,7 @@ void Server::sendNumericReply(std::shared_ptr<Client>& client, int code, const s
 	}
 
 	std::string reply = formatNumericReply(code, target, extra);
-	send(client->getFd(), reply.c_str(), reply.length(), 0);
+    queueMessage(client, reply);
 }
 
 const std::string Server::getCreationDate() const {

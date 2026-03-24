@@ -2,6 +2,8 @@
 
 #include <string>
 
+#define MAX_OUT_BUFFER 4096
+
 class Client {
     public:
         Client(int fd, const std::string& hostname);
@@ -29,8 +31,8 @@ class Client {
         void setPingSent(bool pingSent) { pingSent_ = pingSent; }
         void setLastActivity_(time_t lastActivityTime) { lastActivity_ = lastActivityTime; }
 
-        std::string& getBuffer();
-
+        std::string& getReadBuffer();
+        std::string& getWriteBuffer();
 
     private:
         int fd_;
@@ -40,7 +42,8 @@ class Client {
 		std::string hostname_;
         bool passAccepted_; // PASS cmd sent successfully
         bool registered_; // PASS + NICK + USER sent
-        std::string buffer_;
+        std::string readBuffer_;
+        std::string writeBuffer_;
         time_t lastActivity_;
         bool pingSent_;
         time_t connectedAt_;

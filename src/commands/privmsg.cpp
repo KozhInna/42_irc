@@ -1,6 +1,5 @@
 #include "Server.hpp"
 #include "Channel.hpp"
-#include <iostream>
 #include <sys/socket.h>
 
 void Server::handlePrivmsg(std::shared_ptr<Client>& client, const ParsedCommand& c) {
@@ -29,7 +28,7 @@ void Server::handlePrivmsg(std::shared_ptr<Client>& client, const ParsedCommand&
 
         //Broadcast to channel
         std::string reply = formatClientAction(client, "PRIVMSG", channelName + " :" + c.params[1]);
-        channel->broadcastToChannel(reply, client.get());        
+        broadcastToChannel(channel.get(), reply, client.get());        
     } else {
      //If target is a user
         std::shared_ptr<Client> targetClient = getClientByNick(c.params[0]);
@@ -38,7 +37,7 @@ void Server::handlePrivmsg(std::shared_ptr<Client>& client, const ParsedCommand&
             return;
         } else {
             std::string reply = formatClientAction(client, "PRIVMSG", targetClient->getNickName() + " :" + c.params[1]);
-            send(targetClient->getFd(), reply.c_str(), reply.length(), 0);
+            queueMessage(targetClient, reply);
         }
     }
 }

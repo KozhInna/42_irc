@@ -109,7 +109,7 @@ void Server::joinReplyMessages(std::shared_ptr<Channel>& channel, std::shared_pt
 
     // 1. JOIN echo to new user and all members of channel
     std::string reply = formatClientAction(client, "JOIN", ":" + channelName);
-    channel->broadcastToChannel(reply);
+    broadcastToChannel(channel.get(), reply);
 
     // 2. Topic (if exists)
     if (!channel->getTopic().empty()) {

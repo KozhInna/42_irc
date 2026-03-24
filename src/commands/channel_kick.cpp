@@ -44,7 +44,7 @@ void Server::handleKick(std::shared_ptr<Client>& client, const ParsedCommand& c)
         msgText = msgText + " :" + c.params[2];
     }
     std::string reply = formatClientAction(client, "KICK", msgText);
-    channel->broadcastToChannel(reply);
+    broadcastToChannel(channel.get(), reply);
 
     //remove target-user from channel
     channel->removeMember(targetClient.get());

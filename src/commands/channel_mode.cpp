@@ -190,6 +190,6 @@ void Server::handleMode(std::shared_ptr<Client>& client, const ParsedCommand& c)
     // Broadcast mode change to channel
     if (anyModeApplied) {
         std::string modeChange = formatClientAction(client, "MODE", channelName + " " + appliedModes + appliedParams);
-        channel->broadcastToChannel(modeChange);
+        broadcastToChannel(channel.get(), modeChange);
     }
 }

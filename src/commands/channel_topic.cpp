@@ -36,7 +36,7 @@ void Server::handleTopic(std::shared_ptr<Client>& client, const ParsedCommand& c
         channel->setTopicAuthor(client.get());
         channel->setTopicTimestamp();
         std::string reply = formatClientAction(client, "TOPIC", channelName + " :" + channel->getTopic());
-        channel->broadcastToChannel(reply);
+        broadcastToChannel(channel.get(), reply);
 
     } else { 
         //just check topic
