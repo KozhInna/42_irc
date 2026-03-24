@@ -23,15 +23,12 @@ Server::Server(int port, const std::string& password)
         creationDate_(getCreationDate()),
 		nPollFds(0)
 {
-	//std::cout << "Server constructor\n" << std::endl;
 	initReplyMessages();
 }
 
 //destructor
 Server::~Server()
 {
-	//std::cout << "Server destructor\n" << std::endl;
-
 	//close listenning socket
 	if (listenFd_ != -1) {
 		close(listenFd_);
@@ -122,7 +119,7 @@ void Server::run() {
                             pollFds[i].events &= ~POLLOUT; // nothing left to send
                     }
                 }
-            } 
+            }
             if (pollFds[i].revents & (POLLHUP | POLLERR)) {
                 auto it = clients_.find(pollFds[i].fd);
                 if (it != clients_.end()) {
@@ -182,7 +179,7 @@ std::shared_ptr<Client> Server::acceptNewClient() {
 		std::cerr << "Error: accept() failed: " << strerror(errno) << std::endl;
 		return nullptr;
 	}
-    
+
 	char hostname[INET_ADDRSTRLEN];
 	inet_ntop(AF_INET, &(clientSock.sin_addr), hostname, INET_ADDRSTRLEN);
 
@@ -192,7 +189,6 @@ std::shared_ptr<Client> Server::acceptNewClient() {
 }
 
 void Server::processMessage(std::shared_ptr<Client>& client, const std::string& msg) {
-	std::cout << "Client sent message: " << msg << std::endl;
 	// parse the string (msg)
 	// returns the found cmd if any
 	ParsedCommand c = parseMessage(msg);

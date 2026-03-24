@@ -29,7 +29,7 @@ void Server::handleKick(std::shared_ptr<Client>& client, const ParsedCommand& c)
     //If target is a user
     std::shared_ptr<Client> targetClient = getClientByNick(c.params[1]);
     if (!targetClient) {
-        sendNumericReply(client, ERR_NOSUCHNICK, c.params[1]);
+        sendNumericReply(client, ERR_USERNOTINCHANNEL, c.params[1] + " " + channelName);
         return;
     }
     //Check if target-user is a channel member

@@ -5,18 +5,18 @@
 
 // validate the port number, has to be integer between 1024 to 65535
 bool isValidPort(const std::string& str) {
-    
+
     for (size_t i = 0; i < str.length(); i++) {
         if (!isdigit(str[i]))
             return false;
     }
-    
+
     try {
         int port = std::stoi(str);
         if (port < 1024 || port > 65535)
             return false;
-    
-    } 
+
+    }
     catch (const std::exception& e) {
         return false;
     }
@@ -39,15 +39,13 @@ int main(int argc, char **argv)
 
     std::string password = argv[2];
     int port = std::stoi(argv[1]);
-    std::cout << "pass - " << password << std::endl;
-    std::cout << "port - " << port << std::endl;
 
     Server server(port, password);
 
     try {
         server.start();
         std::cout << "Server listening on port " << port << std::endl;
-        
+
         server.run();
     } catch (const std::exception& e) {
         std::cerr << "Error: " << e.what() << std::endl;
