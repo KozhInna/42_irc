@@ -1,4 +1,4 @@
-# ft_irc
+# IRC server
 
 An IRC server built from scratch in C++, implementing the IRC protocol with support for channels, operators, and real-time messaging.
 
